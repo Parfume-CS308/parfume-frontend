@@ -260,8 +260,8 @@ const Authorize = (props: Props) => {
       <div className='flex items-center gap-4'>
         <img src={`/assets/images/logo.jpg`} alt='logo' className='w-12 h-12' />
         <div>
-          <p className='text-2xl font-bold h-5'>Perfume</p>
-          <p className='text-2xl font-bold '>Point</p>
+          <p className='text-2xl h-5'>Perfume</p>
+          <p className='text-2xl'>Point</p>
         </div>
       </div>
     )
