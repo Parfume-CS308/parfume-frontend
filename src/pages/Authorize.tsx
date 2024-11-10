@@ -101,7 +101,6 @@ const Authorize = () => {
         login(userData)
         navigate('/')
       }
-      console.log(response)
     } catch (error: any) {
       const errorResponse = error.response
       if (typeof errorResponse.data.message === 'string') {
