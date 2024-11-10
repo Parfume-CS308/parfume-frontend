@@ -5,11 +5,17 @@ export type User = {
   lastName: string
   age: number
   gender: USER_GENDER
-  role: string
+  role: USER_ROLE
 }
 
 export enum USER_GENDER {
   MALE = 'male',
   FEMALE = 'female',
   OTHER = 'other'
+}
+
+export enum USER_ROLE {
+  CUSTOMER = 'customer',
+  SALES_MANAGER = 'sales_manager',
+  PRODUCT_MANAGER = 'product_manager'
 }
