@@ -1,13 +1,15 @@
 import { Button } from './components/ui/button'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { routes } from './data/routes'
+import { routes } from './data/constants/routes'
 import { cn } from './lib/utils'
+import useAuth from './hooks/contexts/useAuth'
 
 const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
 
 const AppInner = () => {
   // #region States and Variables =========================================================
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
   // #endregion
 
   // #region Handler functions ============================================================
@@ -41,9 +43,11 @@ const AppInner = () => {
             About us
           </NavLink>
         </div>
-        <div className='flex items-center flex-nowrap gap-4'>
-          <Button onClick={handleSignInButtonClicked}>Sign in</Button>
-        </div>
+        {!isAuthenticated && (
+          <div className='flex items-center flex-nowrap gap-4'>
+            <Button onClick={handleSignInButtonClicked}>Sign in</Button>
+          </div>
+        )}
       </nav>
     )
   }

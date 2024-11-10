@@ -3,6 +3,8 @@ import './App.css'
 import { lazy, Suspense, useEffect } from 'react'
 import { setAuthorizeInterceptor, setDefaultAxios } from './lib/helpers/axiosHelper'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import AuthContextProvider from './data/contexts/AuthContext.tsx'
+import useAuth from './hooks/contexts/useAuth.tsx'
 
 const Authorize = lazy(() => import('./pages/Authorize.tsx'))
 const AppStore = lazy(() => import('./AppStore.tsx'))
@@ -11,11 +13,21 @@ const AboutPage = lazy(() => import('./pages/store/AboutPage.tsx'))
 const queryClient = new QueryClient()
 
 function App() {
+  const { me } = useAuth()
+
   useEffect(() => {
     setDefaultAxios()
     setAuthorizeInterceptor()
+    checkMe()
   }, [])
 
+  const checkMe = async () => {
+    try {
+      await me()
+    } catch (error) {
+      console.error('Error checking me', error)
+    }
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

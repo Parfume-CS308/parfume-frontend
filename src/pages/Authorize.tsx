@@ -1,54 +1,49 @@
+import { loginRequest, registerRequest } from '@/api'
 import DottedShapeSvg from '@/components/svg/DottedShapeSvg'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import useAuth from '@/hooks/contexts/useAuth'
 import { cn } from '@/lib/utils'
+import { User } from '@/types/entity/User'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@radix-ui/react-dropdown-menu'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-
-type Props = {}
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8)
+  password: z
+    .string()
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
+      'Password must contain at least 1 uppercase, 1 lowercase, 1 number and 1 special character and must be at least 8 characters long'
+    )
 })
 
 const registerSchema = z
   .object({
     email: z.string().email(),
-    password: z.string().min(8),
-    passwordAgain: z.string().min(8),
-    firstName: z.string(),
-    lastName: z.string(),
+    password: z
+      .string()
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
+        'Password must contain at least 1 uppercase, 1 lowercase, 1 number and 1 special character and must be at least 8 characters long'
+      ),
+    passwordAgain: z.string(),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
     age: z.number().int().positive(),
-    gender: z.string()
+    gender: z.string().regex(/^(male|female|other)$/)
   })
   .superRefine(({ passwordAgain, password }, ctx) => {
     if (passwordAgain !== password) {
       ctx.addIssue({
         code: 'custom',
         message: 'The passwords did not match',
-        path: ['confirmPassword']
+        path: ['passwordAgain']
       })
     }
   })
@@ -58,25 +53,81 @@ enum FormState {
   REGISTER
 }
 
-const Authorize = (props: Props) => {
+const Authorize = () => {
   // #region States and Variables =========================================================
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const [formState, setFormState] = useState<FormState>(FormState.LOGIN)
-
-  const [position, setPosition] = useState('top')
+  const { login, logout } = useAuth()
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
   })
 
   const registerForm = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema)
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      passwordAgain: '',
+      firstName: '',
+      lastName: '',
+      age: undefined,
+      gender: ''
+    }
   })
+
+  const navigate = useNavigate()
 
   // #endregion
 
   // #region Handler Functions ============================================================
   const handleSignupPageButtonClick = () => {
     setFormState(FormState.REGISTER)
+  }
+
+  const handleSigninPageButtonClick = () => {
+    setFormState(FormState.LOGIN)
+  }
+
+  const handleLoginFormSubmit: SubmitHandler<z.infer<typeof loginSchema>> = async data => {
+    try {
+      const response = await loginRequest(data)
+      if (response.status === 200) {
+        const userData: User = response.data.user
+        login(userData)
+        navigate('/')
+      }
+      console.log(response)
+    } catch (error: any) {
+      const errorResponse = error.response
+      if (typeof errorResponse.data.message === 'string') {
+        setErrorMessage(errorResponse.data.message)
+      } else if (Array.isArray(errorResponse.data.message)) {
+        setErrorMessage(errorResponse.data.message[0])
+      }
+    }
+  }
+
+  const handleRegisterFormSubmit: SubmitHandler<z.infer<typeof registerSchema>> = async data => {
+    try {
+      const response = await registerRequest(data)
+      if (response.status === 200) {
+        const userData: User = response.data.user
+        login(userData)
+        navigate('/')
+      }
+    } catch (error: any) {
+      const errorResponse = error.response
+      if (typeof errorResponse.data.message === 'string') {
+        setErrorMessage(errorResponse.data.message)
+      } else if (Array.isArray(errorResponse.data.message)) {
+        setErrorMessage(errorResponse.data.message[0])
+      }
+    }
   }
   // #endregion
 
@@ -97,16 +148,15 @@ const Authorize = (props: Props) => {
 
   const renderLoginForm = () => {
     return (
-      <Form {...loginForm}>
-        {/* @ts-ignore */}
-        <form onSubmit={() => {}} className='space-y-4 w-full'>
+      <Form {...loginForm} key={'loginForm'}>
+        <form onSubmit={loginForm.handleSubmit(handleLoginFormSubmit)} className='space-y-4 w-full'>
           <FormField
             control={loginForm.control}
             name='email'
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder='Email' {...field} />
+                  <Input placeholder='Email' {...field} type='email' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,16 +168,16 @@ const Authorize = (props: Props) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder='Password' {...field} />
+                  <Input placeholder='Password' {...field} type='password' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <Button type='submit' className='w-full'>
-            Login
+            Sign in
           </Button>
-          {/* @ts-ignore */}
+          {errorMessage && <FormMessage className='text-center'>{errorMessage}</FormMessage>}
         </form>
       </Form>
     )
@@ -135,9 +185,8 @@ const Authorize = (props: Props) => {
 
   const renderRegisterForm = () => {
     return (
-      <Form {...registerForm}>
-        {/* @ts-ignore */}
-        <form onSubmit={() => {}} className='space-y-4 w-full'>
+      <Form {...registerForm} key={'registerForm'}>
+        <form onSubmit={registerForm.handleSubmit(handleRegisterFormSubmit)} className='space-y-4 w-full'>
           <FormField
             control={registerForm.control}
             name='email'
@@ -150,7 +199,6 @@ const Authorize = (props: Props) => {
               </FormItem>
             )}
           />
-
           <div className='flex w-full gap-4'>
             <FormField
               control={registerForm.control}
@@ -158,7 +206,7 @@ const Authorize = (props: Props) => {
               render={({ field }) => (
                 <FormItem className='w-full'>
                   <FormControl>
-                    <Input placeholder='First Name' {...field} />
+                    <Input placeholder='First Name' {...field} type='text' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,7 +218,7 @@ const Authorize = (props: Props) => {
               render={({ field }) => (
                 <FormItem className='w-full'>
                   <FormControl>
-                    <Input placeholder='Last Name' {...field} />
+                    <Input placeholder='Last Name' {...field} type='text' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,7 +231,7 @@ const Authorize = (props: Props) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder='Password' {...field} />
+                  <Input placeholder='Password' {...field} type='password' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -195,7 +243,7 @@ const Authorize = (props: Props) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder='Confirm Password' {...field} />
+                  <Input placeholder='Confirm Password' {...field} type='password' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -205,10 +253,16 @@ const Authorize = (props: Props) => {
             <FormField
               control={registerForm.control}
               name='age'
-              render={({ field }) => (
+              render={() => (
                 <FormItem className='w-full'>
                   <FormControl>
-                    <Input placeholder='Age' {...field} type='number' />
+                    <Input
+                      placeholder='Age'
+                      type='number'
+                      {...registerForm.register('age', {
+                        valueAsNumber: true
+                      })}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -239,9 +293,9 @@ const Authorize = (props: Props) => {
             />
           </div>
           <Button type='submit' className='w-full'>
-            Login
+            Sign up
           </Button>
-          {/* @ts-ignore */}
+          {errorMessage && <FormMessage className='text-center'>{errorMessage}</FormMessage>}
         </form>
       </Form>
     )
@@ -286,6 +340,17 @@ const Authorize = (props: Props) => {
     )
   }
 
+  const renderLoginButton = () => {
+    return (
+      <p className='p-0 text-xs'>
+        Already have an account?{' '}
+        <Button variant={'link'} className='p-0 text-xs' onClick={handleSigninPageButtonClick}>
+          Sign in
+        </Button>
+      </p>
+    )
+  }
+
   const renderBottomControls = () => {
     if (formState === FormState.LOGIN) {
       return (
@@ -294,6 +359,8 @@ const Authorize = (props: Props) => {
           {renderRegisterButton()}
         </div>
       )
+    } else if (formState === FormState.REGISTER) {
+      return <div className='flex flex-col items-center mt-4'>{renderLoginButton()}</div>
     }
   }
 
