@@ -1,4 +1,4 @@
-import { meRequest } from '@/api'
+import { logoutRequest, meRequest } from '@/api'
 import { User } from '@/types/entity/User'
 import { createContext, useReducer } from 'react'
 
@@ -49,6 +49,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const logout = () => {
+    logoutRequest()
     dispatch({ type: 'LOGOUT', payload: null })
   }
 

@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger
 } from './components/ui/dropdown-menu'
 
-const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
+const getLinkStyle = (isActive: boolean): string =>
+  `${isActive ? 'text-navLinkActive' : 'text-navLinkInactive'} cursor-pointer`
 
 const AppInner = () => {
   // #region States and Variables =========================================================
@@ -27,6 +28,10 @@ const AppInner = () => {
   const handleLogoutButtonClick = () => {
     logout()
   }
+
+  const handleDropdownItemClick = (item: string) => {
+    navigate(item)
+  }
   // #endregion
 
   // #region Render functions =============================================================
@@ -40,7 +45,7 @@ const AppInner = () => {
             <p className='text-2xl'>Point</p>
           </div>
         </div>
-        <div className='mx-auto flex items-center gap-8'>
+        <div className='mx-auto md:flex items-center gap-8 hidden'>
           <NavLink to='/' className={({ isActive }) => getLinkStyle(isActive)}>
             Home
           </NavLink>
@@ -54,38 +59,41 @@ const AppInner = () => {
             About us
           </NavLink>
         </div>
-        {!isAuthenticated ? (
-          <Button onClick={handleSignInButtonClicked}>Sign in</Button>
-        ) : (
-          <div className='flex items-center gap-4 flex-nowrap'>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className='flex items-center flex-nowrap gap-1'>
-                  {user?.firstName} <LucideChevronDown size={16} className='relative top-[1px]' />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Orders</DropdownMenuItem>
-                <DropdownMenuItem>Returns</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <LucideShoppingCart size={20} />
-          </div>
-        )}
+        <div className='flex-1 flex justify-end md:flex-none'>
+          {!isAuthenticated ? (
+            <Button onClick={handleSignInButtonClicked}>Sign in</Button>
+          ) : (
+            <div className='flex items-center gap-4 flex-nowrap'>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <div className='flex items-center flex-nowrap gap-1'>
+                    {user?.firstName} <LucideChevronDown size={16} className='relative top-[1px]' />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleDropdownItemClick('profile')}>Account</DropdownMenuItem>
+                  <DropdownMenuItem>Orders</DropdownMenuItem>
+                  <DropdownMenuItem>Returns</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <LucideShoppingCart size={20} />
+            </div>
+          )}
+        </div>
       </nav>
     )
   }
   // #endregion
   return (
-    <div className='bg-pageBackground w-screen h-screen'>
+    <div className='bg-pageBackground w-screen h-screen overflow-hidden flex flex-col'>
       {renderNavbar()}
-
-      <Outlet />
+      <div className='w-full h-full p-4'>
+        <Outlet />
+      </div>
     </div>
   )
 }
