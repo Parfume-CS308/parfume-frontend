@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer base {
   :root {
-    --background: hsla(220, 23%, 97%, 1);
+    --background: 220 23% 97%;
     --foreground: 20 14.3% 4.1%;
     --card: 0 0% 100%;
     --card-foreground: 20 14.3% 4.1%;
@@ -29,6 +29,8 @@
     --chart-5: 27 87% 67%;
     --radius: 8px;
     --page-background: 220 23% 97%;
+    --nav-link-active: 219 40% 11%;
+    --nav-link-inactive: 208 13% 45%
   }
   .dark {
     --background: 20 14.3% 4.1%;

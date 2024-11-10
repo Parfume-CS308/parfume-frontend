@@ -50,7 +50,9 @@ export default {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))'
         },
-        pageBackground: 'hsl(var(--page-background))'
+        pageBackground: 'hsl(var(--page-background))',
+        navLinkActive: 'hsl(var(--nav-link-active))',
+        navLinkInactive: 'hsl(var(--nav-link-inactive))'
       }
     }
   },
