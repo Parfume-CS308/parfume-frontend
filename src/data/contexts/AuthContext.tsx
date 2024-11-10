@@ -57,7 +57,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   // #region Helper Functions =============================================================
   const me = async () => {
     try {
-      console.log('FILTERED 2')
       const response = await meRequest()
       login(response.data.user)
     } catch (error) {

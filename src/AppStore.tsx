@@ -1,6 +1,6 @@
 import { Button } from './components/ui/button'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { routes } from './data/constants/routes'
+import { routes } from './constants/routes'
 import useAuth from './hooks/contexts/useAuth'
 import { LucideChevronDown, LucideShoppingCart } from 'lucide-react'
 import {

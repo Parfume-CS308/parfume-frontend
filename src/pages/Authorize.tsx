@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { genderRegex, passwordRegex } from '@/constants/regex'
 import useAuth from '@/hooks/contexts/useAuth'
 import { cn } from '@/lib/utils'
 import { User } from '@/types/entity/User'
@@ -18,7 +19,7 @@ const loginSchema = z.object({
   password: z
     .string()
     .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
+      passwordRegex,
       'Password must contain at least 1 uppercase, 1 lowercase, 1 number and 1 special character and must be at least 8 characters long'
     )
 })
@@ -29,14 +30,14 @@ const registerSchema = z
     password: z
       .string()
       .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/,
+        passwordRegex,
         'Password must contain at least 1 uppercase, 1 lowercase, 1 number and 1 special character and must be at least 8 characters long'
       ),
     passwordAgain: z.string(),
     firstName: z.string().min(1, 'First name is required'),
     lastName: z.string().min(1, 'Last name is required'),
     age: z.number().int().positive(),
-    gender: z.string().regex(/^(male|female|other)$/)
+    gender: z.string().regex(genderRegex)
   })
   .superRefine(({ passwordAgain, password }, ctx) => {
     if (passwordAgain !== password) {
@@ -57,7 +58,7 @@ const Authorize = () => {
   // #region States and Variables =========================================================
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [formState, setFormState] = useState<FormState>(FormState.LOGIN)
-  const { login, logout } = useAuth()
+  const { login } = useAuth()
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),

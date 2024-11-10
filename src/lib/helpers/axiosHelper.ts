@@ -3,7 +3,6 @@ import axios from 'axios'
 const setDefaultAxios = () => {
   axios.defaults.headers.get['Pragma'] = 'no-cache'
   axios.defaults.baseURL = import.meta.env.VITE_API_URL
-  axios.defaults.headers['Access-Control-Allow-Origin'] = 'http://localhost:8016'
   axios.defaults.withCredentials = true
 }
 
