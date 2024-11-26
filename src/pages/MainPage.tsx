@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import FilterSidebar from '../components/ui/filterSideBar';
+import FilterSidebar, { FilterState } from '../components/ui/filterSideBar';
 import ProductCard from '../components/ui/productcard';
 import naxosimage from '../images/naxos.jpg';
 import laytonimage from '../images/layton.jpg';
 import grandsoirimage from '../images/grandsoirbad.jpg';
 
-// Updated product interface
 interface Product {
   id: number;
   name: string;
@@ -23,7 +22,6 @@ interface Product {
   category: string[];
 }
 
-// Updated products data
 const products: Product[] = [
   {
     id: 1,
@@ -43,6 +41,22 @@ const products: Product[] = [
   },
   {
     id: 2,
+    name: "XJ 1861 Naxos",
+    size: 100,
+    image: naxosimage,
+    originalPrice: 320,
+    discountedPrice: 250,
+    isInBasket: false,
+    inStock: true,
+    popularity: 4.5,
+    totalRatings: 128,
+    description: "A rich tobacco vanilla fragrance with honey and lavender notes",
+    gender: 'Male',
+    essence: 'EDP',
+    category: ['Winter']
+  },
+  {
+    id: 3,
     name: "Layton",
     size: 75,
     image: laytonimage,
@@ -57,7 +71,7 @@ const products: Product[] = [
     category: ['Winter']
   },
   {
-    id: 3,
+    id: 4,
     name: "Layton",
     size: 125,
     image: laytonimage,
@@ -72,14 +86,14 @@ const products: Product[] = [
     category: ['Winter']
   },
   {
-    id: 4,
+    id: 5,
     name: "Grand Soir",
     size: 70,
     image: grandsoirimage,
     originalPrice: 220,
     isInBasket: false,
     inStock: true,
-    popularity: 4.6,
+    popularity: 4.4,
     totalRatings: 189,
     description: "An amber vanilla masterpiece",
     gender: 'Unisex',
@@ -93,6 +107,13 @@ type SortOption = 'price-asc' | 'price-desc' | 'popularity';
 const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('popularity');
+  const [filters, setFilters] = useState<FilterState>({
+    gender: [],
+    essence: [],
+    priceRange: { min: 0, max: 1000 },
+    rating: 0,
+    category: []
+  });
 
   // Handler for adding products to the basket
   const handleAddToBasket = (productId: number) => {
@@ -109,31 +130,59 @@ const MainPage: React.FC = () => {
     return products
       .filter(product => {
         const searchLower = searchQuery.toLowerCase();
-        return (
+        const matchesSearch = 
           product.name.toLowerCase().includes(searchLower) ||
-          product.description.toLowerCase().includes(searchLower)
-        );
+          product.description.toLowerCase().includes(searchLower);
+
+        // Gender filter
+        const matchesGender = filters.gender.length === 0 || 
+          filters.gender.includes(product.gender);
+
+        // Essence filter
+        const matchesEssence = filters.essence.length === 0 || 
+          filters.essence.includes(product.essence);
+
+        // Price filter
+        const currentPrice = product.discountedPrice || product.originalPrice;
+        const matchesPrice = currentPrice <= filters.priceRange.max;
+
+        // Rating filter
+        const matchesRating = filters.rating === 0 || 
+          product.popularity >= filters.rating;
+
+        // Category filter
+        const matchesCategory = filters.category.length === 0 || 
+          product.category.some(cat => filters.category.includes(cat));
+
+        return matchesSearch && matchesGender && matchesEssence && 
+               matchesPrice && matchesRating && matchesCategory;
       })
       .sort((a, b) => {
+        const priceA = a.discountedPrice || a.originalPrice;
+        const priceB = b.discountedPrice || b.originalPrice;
+        
         switch (sortBy) {
           case 'price-asc':
-            return (a.discountedPrice || a.originalPrice) - (b.discountedPrice || b.originalPrice);
+            return priceA - priceB;
           case 'price-desc':
-            return (b.discountedPrice || b.originalPrice) - (a.discountedPrice || a.originalPrice);
+            return priceB - priceA;
           case 'popularity':
             return b.popularity - a.popularity;
           default:
             return 0;
         }
       });
-  }, [searchQuery, sortBy]);
+  }, [searchQuery, sortBy, filters, products]);
 
   return (
     <div className="container mx-auto">
       <div className="flex flex-col md:flex-row gap-6 p-4">
         {/* Sidebar */}
         <aside className="md:w-64 flex-shrink-0">
-          <FilterSidebar />
+          <FilterSidebar 
+            onFilterChange={setFilters}
+            initialFilters={filters}
+          />
         </aside>
 
         {/* Main Content */}
@@ -164,7 +213,12 @@ const MainPage: React.FC = () => {
             </div>
 
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Our Perfumes</h1>
+              <h1 className="text-2xl font-bold">
+                Our Perfumes 
+                <span className="text-sm text-gray-500 ml-2">
+                  ({filteredAndSortedProducts.length} products)
+                </span>
+              </h1>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -190,7 +244,7 @@ const MainPage: React.FC = () => {
 
           {filteredAndSortedProducts.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No fragrances found matching your search.</p>
+              <p className="text-gray-500">No fragrances found matching your criteria.</p>
             </div>
           )}
         </main>
