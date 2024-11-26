@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import StarRating from './StarRating';
 
 interface ProductCardProps {
   id: number;
@@ -10,6 +11,9 @@ interface ProductCardProps {
   discountedPrice?: number;
   isInBasket: boolean;
   inStock: boolean;
+  popularity: number;
+  totalRatings: number;
+  description: string;
   onAddToBasket: () => void;
 }
 
@@ -22,20 +26,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
   discountedPrice,
   isInBasket,
   inStock,
+  popularity,
+  totalRatings,
   onAddToBasket,
 }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    // Create URL-friendly name that exactly matches our fragranceData keys
     const urlName = name.toLowerCase()
-      .replace(/\s+/g, '-')           // Replace spaces with hyphens
-      .replace(/[^a-z0-9-]/g, '')     // Remove special characters
-      .replace(/--+/g, '-');          // Replace multiple hyphens with single hyphen
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/--+/g, '-');
     
-    // Create the full URL identifier
     const fullUrlId = `${urlName}-${size}ml`;
-    console.log('Navigating to:', fullUrlId); // For debugging
     navigate(`/perfume/${fullUrlId}`);
   };
 
@@ -79,9 +82,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold text-gray-700">{name}</h3>
-        <p className="text-sm text-gray-500 mt-1">{size}ml</p>
+      <div className="mt-4 space-y-2">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-700">{name}</h3>
+          <span className="text-sm text-gray-500">{size}ml</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <StarRating rating={popularity} size="sm" />
+          <span className="text-sm text-gray-500">({totalRatings})</span>
+        </div>
         
         <div className="mt-2">
           {discountedPrice ? (

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import FilterSidebar, { FilterState } from '../components/ui/filterSideBar';
+import FilterSidebar from '../components/ui/filterSideBar';
 import ProductCard from '../components/ui/productcard';
 import naxosimage from '../images/naxos.jpg';
 import laytonimage from '../images/layton.jpg';
 import grandsoirimage from '../images/grandsoirbad.jpg';
 
+// Updated product interface
 interface Product {
   id: number;
   name: string;
@@ -15,12 +16,14 @@ interface Product {
   isInBasket: boolean;
   inStock: boolean;
   popularity: number;
+  totalRatings: number;
   description: string;
   gender: 'Male' | 'Female' | 'Unisex';
   essence: 'EDT' | 'EDP' | 'Parfum';
   category: string[];
 }
 
+// Updated products data
 const products: Product[] = [
   {
     id: 1,
@@ -32,6 +35,7 @@ const products: Product[] = [
     isInBasket: false,
     inStock: true,
     popularity: 4.5,
+    totalRatings: 128,
     description: "A rich tobacco vanilla fragrance with honey and lavender notes",
     gender: 'Male',
     essence: 'EDP',
@@ -39,21 +43,6 @@ const products: Product[] = [
   },
   {
     id: 2,
-    name: "XJ 1861 Naxos",
-    size: 100,
-    image: naxosimage,
-    originalPrice: 320,
-    discountedPrice: 250,
-    isInBasket: false,
-    inStock: true,
-    popularity: 4.5,
-    description: "A rich tobacco vanilla fragrance with honey and lavender notes",
-    gender: 'Male',
-    essence: 'EDP',
-    category: ['Winter']
-  },
-  {
-    id: 3,
     name: "Layton",
     size: 75,
     image: laytonimage,
@@ -61,13 +50,14 @@ const products: Product[] = [
     isInBasket: true,
     inStock: true,
     popularity: 4.8,
+    totalRatings: 256,
     description: "A fresh, elegant and sweet vanilla fragrance",
     gender: 'Male',
     essence: 'EDP',
     category: ['Winter']
   },
   {
-    id: 4,
+    id: 3,
     name: "Layton",
     size: 125,
     image: laytonimage,
@@ -75,13 +65,14 @@ const products: Product[] = [
     isInBasket: false,
     inStock: false,
     popularity: 4.8,
+    totalRatings: 256,
     description: "A fresh, elegant and sweet vanilla fragrance",
     gender: 'Male',
     essence: 'EDP',
     category: ['Winter']
   },
   {
-    id: 5,
+    id: 4,
     name: "Grand Soir",
     size: 70,
     image: grandsoirimage,
@@ -89,9 +80,10 @@ const products: Product[] = [
     isInBasket: false,
     inStock: true,
     popularity: 4.6,
+    totalRatings: 189,
     description: "An amber vanilla masterpiece",
     gender: 'Unisex',
-    essence: 'EDT',
+    essence: 'EDP',
     category: ['Winter']
   }
 ];
@@ -101,14 +93,8 @@ type SortOption = 'price-asc' | 'price-desc' | 'popularity';
 const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('popularity');
-  const [filters, setFilters] = useState<FilterState>({
-    gender: [],
-    essence: [],
-    priceRange: { min: 0, max: 1000 },
-    rating: 0,
-    category: []
-  });
 
+  // Handler for adding products to the basket
   const handleAddToBasket = (productId: number) => {
     const product = products.find(p => p.id === productId);
     if (product && !product.inStock) {
@@ -118,31 +104,15 @@ const MainPage: React.FC = () => {
     console.log(`Add product with ID ${productId} to basket`);
   };
 
+  // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
     return products
       .filter(product => {
         const searchLower = searchQuery.toLowerCase();
-        const matchesSearch = 
+        return (
           product.name.toLowerCase().includes(searchLower) ||
-          product.description.toLowerCase().includes(searchLower);
-
-        const matchesGender = filters.gender.length === 0 || 
-          filters.gender.includes(product.gender);
-
-        const matchesEssence = filters.essence.length === 0 || 
-          filters.essence.includes(product.essence);
-
-        const matchesPrice = 
-          (product.discountedPrice || product.originalPrice) <= filters.priceRange.max;
-
-        const matchesRating = filters.rating === 0 || 
-          product.popularity >= filters.rating;
-
-        const matchesCategory = filters.category.length === 0 || 
-          product.category.some(cat => filters.category.includes(cat));
-
-        return matchesSearch && matchesGender && matchesEssence && 
-               matchesPrice && matchesRating && matchesCategory;
+          product.description.toLowerCase().includes(searchLower)
+        );
       })
       .sort((a, b) => {
         switch (sortBy) {
@@ -156,17 +126,14 @@ const MainPage: React.FC = () => {
             return 0;
         }
       });
-  }, [searchQuery, sortBy, filters, products]);
+  }, [searchQuery, sortBy]);
 
   return (
     <div className="container mx-auto">
       <div className="flex flex-col md:flex-row gap-6 p-4">
         {/* Sidebar */}
         <aside className="md:w-64 flex-shrink-0">
-          <FilterSidebar 
-            onFilterChange={setFilters}
-            initialFilters={filters}
-          />
+          <FilterSidebar />
         </aside>
 
         {/* Main Content */}
@@ -197,12 +164,7 @@ const MainPage: React.FC = () => {
             </div>
 
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">
-                Our Perfumes 
-                <span className="text-sm text-gray-500 ml-2">
-                  ({filteredAndSortedProducts.length} products)
-                </span>
-              </h1>
+              <h1 className="text-2xl font-bold">Our Perfumes</h1>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -220,14 +182,7 @@ const MainPage: React.FC = () => {
             {filteredAndSortedProducts.map((product) => (
               <ProductCard
                 key={product.id}
-                id={product.id}
-                name={product.name}
-                size={product.size}
-                image={product.image}
-                originalPrice={product.originalPrice}
-                discountedPrice={product.discountedPrice}
-                isInBasket={product.isInBasket}
-                inStock={product.inStock}
+                {...product}
                 onAddToBasket={() => handleAddToBasket(product.id)}
               />
             ))}
@@ -235,7 +190,7 @@ const MainPage: React.FC = () => {
 
           {filteredAndSortedProducts.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No fragrances found matching your criteria.</p>
+              <p className="text-gray-500">No fragrances found matching your search.</p>
             </div>
           )}
         </main>
