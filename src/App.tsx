@@ -6,7 +6,8 @@ import AuthContextProvider from './data/contexts/AuthContext';
 import useAuth from './hooks/contexts/useAuth';
 import { USER_ROLE } from './types/entity/User';
 import ErrorPage from './pages/ErrorPage';
-import FragranceDetailPage from './pages/FragnanceDetailPage'; // New import for detail page
+import FragranceDetailPage from './pages/FragnanceDetailPage';
+import MainPage from './pages/MainPage'; // Import MainPage
 
 const Authorize = lazy(() => import('./pages/Authorize'));
 const AppStore = lazy(() => import('./AppStore'));
@@ -34,10 +35,11 @@ function App() {
   const getRoutes = () => {
     const customerRoutes = (
       <>
-        <Route path="/" element={<AppStore />} errorElement={<ErrorPage />}>
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="perfume/:id" element={<FragranceDetailPage />} /> {/* Fragrance Detail Page Route */}
-          <Route path="/*" element={<ErrorPage />} />
+        <Route path="/" element={<AppStore />}>
+          <Route index element={<MainPage />} /> {/* Add this line */}
+          <Route path="about" element={<AboutPage />} />
+          <Route path="perfume/:id" element={<FragranceDetailPage />} />
+          <Route path="*" element={<ErrorPage />} />
         </Route>
         <Route path="/auth" element={<Authorize />} />
       </>
@@ -60,11 +62,13 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>{getRoutes()}</Routes>
-        </Suspense>
-      </BrowserRouter>
+      <AuthContextProvider>
+        <BrowserRouter>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>{getRoutes()}</Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthContextProvider>
     </QueryClientProvider>
   );
 }

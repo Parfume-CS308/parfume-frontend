@@ -1,49 +1,67 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import PlusCircleIcon from '../icons/pluscircle.png';
-import CheckCircleIcon from '../icons/checkcircle.png';
 
 interface ProductCardProps {
-  id: number; // Add an id property to identify the product
+  id: number;
   name: string;
+  size: number;
   image: string;
   originalPrice: number;
   discountedPrice?: number;
-  priceRange?: string;
   isInBasket: boolean;
+  inStock: boolean;
   onAddToBasket: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
   name,
+  size,
   image,
   originalPrice,
   discountedPrice,
-  priceRange,
   isInBasket,
+  inStock,
   onAddToBasket,
 }) => {
   const navigate = useNavigate();
 
-  // Navigate to the product detail page on card click
   const handleCardClick = () => {
-    navigate(`/perfume/${id}`);
+    // Create URL-friendly name that exactly matches our fragranceData keys
+    const urlName = name.toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '')     // Remove special characters
+      .replace(/--+/g, '-');          // Replace multiple hyphens with single hyphen
+    
+    // Create the full URL identifier
+    const fullUrlId = `${urlName}-${size}ml`;
+    console.log('Navigating to:', fullUrlId); // For debugging
+    navigate(`/perfume/${fullUrlId}`);
   };
 
   return (
     <div
       onClick={handleCardClick}
-      className="border rounded-lg p-6 shadow-sm relative w-full max-w-sm cursor-pointer"
+      className="relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white"
     >
-      {/* Image and Favorite Icon */}
+      {!inStock && (
+        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm z-10">
+          Out of Stock
+        </div>
+      )}
+      
       <div className="relative h-72">
-        <img src={image} alt={name} className="w-full h-full object-cover rounded-lg" />
+        <img 
+          src={image} 
+          alt={`${name} ${size}ml`}
+          className="w-full h-full object-contain rounded-lg"
+        />
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-          onClick={(e) => e.stopPropagation()} // Prevents navigation on button click
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
-          {/* Heart Icon SVG */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -61,33 +79,44 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* Product Details */}
-      <div className="mt-4 space-y-1">
+      <div className="mt-4">
         <h3 className="text-lg font-semibold text-gray-700">{name}</h3>
-        {discountedPrice ? (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm line-through text-gray-500">${originalPrice}</span>
-            <span className="text-sm font-bold text-gray-900 bg-gray-200 px-2 py-1 rounded-md">
-              ${discountedPrice}
-            </span>
-          </div>
-        ) : (
-          <span className="text-sm text-gray-700">{priceRange || `$${originalPrice}`}</span>
-        )}
+        <p className="text-sm text-gray-500 mt-1">{size}ml</p>
+        
+        <div className="mt-2">
+          {discountedPrice ? (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 line-through">${originalPrice}</span>
+              <span className="font-bold text-gray-900">${discountedPrice}</span>
+            </div>
+          ) : (
+            <span className="text-gray-900">${originalPrice}</span>
+          )}
+        </div>
       </div>
 
-      {/* Add to Basket / In Basket */}
       <button
         onClick={(e) => {
-          e.stopPropagation(); // Prevents card click from triggering
+          e.stopPropagation();
           onAddToBasket();
         }}
-        className="absolute bottom-2 right-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+        disabled={!inStock}
+        className={`absolute bottom-2 right-2 p-2 rounded-full transition-colors ${
+          !inStock 
+            ? 'bg-gray-200 cursor-not-allowed' 
+            : isInBasket 
+              ? 'bg-green-100 text-green-600' 
+              : 'bg-gray-100 hover:bg-gray-200'
+        }`}
       >
         {isInBasket ? (
-          <img src={CheckCircleIcon} alt="In Basket" className="w-6 h-6" />
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
         ) : (
-          <img src={PlusCircleIcon} alt="Add to Basket" className="w-6 h-6" />
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
         )}
       </button>
     </div>
