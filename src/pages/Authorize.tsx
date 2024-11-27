@@ -322,6 +322,7 @@ const Authorize = () => {
   }
 
   const renderForgetPassword = () => {
+    return null
     return (
       <Button variant={'ghost'} className='p-0 h-4 text-sm'>
         Forget Password?
