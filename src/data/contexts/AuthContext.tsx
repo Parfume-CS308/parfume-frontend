@@ -1,4 +1,4 @@
-import { meRequest } from '@/api'
+import { logoutRequest, meRequest } from '@/api'
 import { User } from '@/types/entity/User'
 import { createContext, useReducer } from 'react'
 
@@ -50,6 +50,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     dispatch({ type: 'LOGOUT', payload: null })
+    logoutRequest()
   }
 
   // #endregion
@@ -57,6 +58,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   // #region Helper Functions =============================================================
   const me = async () => {
     try {
+      if (!state.isAuthenticated) return
       const response = await meRequest()
       login(response.data.user)
     } catch (error) {
