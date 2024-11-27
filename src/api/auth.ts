@@ -52,4 +52,13 @@ const me = async (): Promise<AxiosResponse<MeResponse>> => {
   }
 }
 
-export { login, register, me }
+const logout = async () => {
+  try {
+    await axios.post(ENDPOINT + '/logout')
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export { login, register, me, logout }
