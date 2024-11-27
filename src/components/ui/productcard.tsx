@@ -1,13 +1,40 @@
 import React from 'react'
 import StarRating from './StarRating'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO'
+import useCart from '@/hooks/contexts/useCart'
+import { useNavigate } from 'react-router-dom'
 
 interface ProductCardProps {
   perfume: GetPerfumeDetailDTO
-  onAddToBasket: () => void
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ perfume, onAddToBasket }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
+  const { getBasketProduct, addToBasket } = useCart()
+  const basketProduct = getBasketProduct(perfume.id)
+  const navigate = useNavigate()
+
+  // #region Handler Functions ============================================================
+
+  const handleProductCardClick = (id: string) => {
+    navigate(`/perfume/${id}`)
+  }
+
+  const handleAddToBasketClick = () => {
+    const minVolume = Math.min(...perfume.variants.map(variant => variant.volume))
+    const basePrice = Math.min(...perfume.variants.map(variant => variant.price))
+
+    addToBasket({
+      perfumeId: perfume.id,
+      perfumeName: perfume.name,
+      brand: perfume.brand,
+      volume: minVolume,
+      quantity: 1,
+      basePrice: basePrice
+    })
+  }
+
+  // #endregion
+
   // #region Render Functions =============================================================
   const renderOutOfStockBanner = () => {
     const hasStock = perfume.variants.some(variant => variant.stock > 0)
@@ -85,12 +112,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume, onAddToBasket }) => 
 
   const renderAddToBasketButton = () => {
     const inStock = perfume.variants.some(variant => variant.stock > 0)
-    const isInBasket = false // TODO: Implement this
+    const isInBasket = !!basketProduct
+
     return (
       <button
         onClick={e => {
           e.stopPropagation()
-          onAddToBasket()
+          handleAddToBasketClick()
         }}
         disabled={!inStock}
         className={`absolute bottom-2 right-2 p-2 rounded-full transition-colors ${
@@ -118,7 +146,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume, onAddToBasket }) => 
 
   return (
     <div
-      onClick={() => {}}
+      onClick={() => handleProductCardClick(perfume.id)}
       className='relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white'
     >
       {renderOutOfStockBanner()}

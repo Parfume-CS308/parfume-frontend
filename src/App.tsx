@@ -1,76 +1,79 @@
-import React, { lazy, Suspense, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { setAuthorizeInterceptor, setDefaultAxios } from './lib/helpers/axiosHelper';
-import AuthContextProvider from './data/contexts/AuthContext';
-import useAuth from './hooks/contexts/useAuth';
-import { USER_ROLE } from './types/entity/User';
-import ErrorPage from './pages/ErrorPage';
-import FragranceDetailPage from './pages/FragnanceDetailPage';
-import MainPage from './pages/MainPage'; // Import MainPage
+import React, { lazy, Suspense, useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { setAuthorizeInterceptor, setDefaultAxios } from './lib/helpers/axiosHelper'
+import AuthContextProvider from './data/contexts/AuthContext'
+import useAuth from './hooks/contexts/useAuth'
+import { USER_ROLE } from './types/entity/User'
+import ErrorPage from './pages/ErrorPage'
+import MainPage from './pages/MainPage' // Import MainPage
+import CartContextProvider, { CartContext } from './data/contexts/CartContext'
 
-const Authorize = lazy(() => import('./pages/Authorize'));
-const AppStore = lazy(() => import('./AppStore'));
-const AboutPage = lazy(() => import('./pages/store/AboutPage'));
+const Authorize = lazy(() => import('./pages/Authorize'))
+const AppStore = lazy(() => import('./AppStore'))
+const AboutPage = lazy(() => import('./pages/store/AboutPage'))
+const PerfumeDetailPage = lazy(() => import('./pages/PerfumeDetailPage'))
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 function App() {
-  const { me, user } = useAuth();
+  const { me, user } = useAuth()
 
   useEffect(() => {
-    setDefaultAxios();
-    setAuthorizeInterceptor();
-    checkMe();
-  }, []);
+    setDefaultAxios()
+    setAuthorizeInterceptor()
+    checkMe()
+  }, [])
 
   const checkMe = async () => {
     try {
-      await me();
+      await me()
     } catch (error) {
-      console.error('Error checking me', error);
+      console.error('Error checking me', error)
     }
-  };
+  }
 
   const getRoutes = () => {
     const customerRoutes = (
       <>
-        <Route path="/" element={<AppStore />}>
+        <Route path='/' element={<AppStore />}>
           <Route index element={<MainPage />} /> {/* Add this line */}
-          <Route path="about" element={<AboutPage />} />
-          <Route path="perfume/:id" element={<FragranceDetailPage />} />
-          <Route path="*" element={<ErrorPage />} />
+          <Route path='about' element={<AboutPage />} />
+          <Route path='perfume/:id' element={<PerfumeDetailPage />} />
+          <Route path='*' element={<ErrorPage />} />
         </Route>
-        <Route path="/auth" element={<Authorize />} />
+        <Route path='/auth' element={<Authorize />} />
       </>
-    );
+    )
 
-    const productManagerRoutes = <></>;
-    const salesManagerRoutes = <></>;
+    const productManagerRoutes = <></>
+    const salesManagerRoutes = <></>
 
     switch (user?.role) {
       case USER_ROLE.CUSTOMER:
-        return customerRoutes;
+        return customerRoutes
       case USER_ROLE.PRODUCT_MANAGER:
-        return productManagerRoutes;
+        return productManagerRoutes
       case USER_ROLE.SALES_MANAGER:
-        return salesManagerRoutes;
+        return salesManagerRoutes
       default:
-        return customerRoutes;
+        return customerRoutes
     }
-  };
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthContextProvider>
-        <BrowserRouter>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>{getRoutes()}</Routes>
-          </Suspense>
-        </BrowserRouter>
+        <CartContextProvider>
+          <BrowserRouter>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>{getRoutes()}</Routes>
+            </Suspense>
+          </BrowserRouter>
+        </CartContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>
-  );
+  )
 }
 
-export default App;
+export default App

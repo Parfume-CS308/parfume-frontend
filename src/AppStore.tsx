@@ -10,18 +10,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from './components/ui/dropdown-menu'
+import useCart from './hooks/contexts/useCart'
 
 const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
 
 const AppInner = () => {
   // #region States and Variables =========================================================
   const navigate = useNavigate()
+  const { basket } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
   // #endregion
 
   // #region Handler functions ============================================================
   const handleSignInButtonClicked = () => {
-    navigate(routes.auth.name)
+    navigate(routes.auth.pathname)
   }
 
   const handleLogoutButtonClick = () => {
@@ -31,6 +33,18 @@ const AppInner = () => {
 
   // #region Render functions =============================================================
   const renderNavbar = () => {
+    const renderCartButton = () => {
+      return (
+        <div className='relative'>
+          <LucideShoppingCart size={20} className='cursor-pointer' />
+          {basket.length > 0 && (
+            <div className='absolute top-[-10px] right-[-10px] bg-red-600 rounded-full h-4 w-4 flex items-center justify-center text-white text-[0.5rem]'>
+              {basket.length}
+            </div>
+          )}
+        </div>
+      )
+    }
     return (
       <nav className='px-8 py-4 flex flex-nowrap items-center bg-white'>
         <div className='flex items-center flex-nowrap gap-4'>
@@ -54,29 +68,31 @@ const AppInner = () => {
             About us
           </NavLink>
         </div>
-        {!isAuthenticated ? (
-          <Button onClick={handleSignInButtonClicked}>Sign in</Button>
-        ) : (
-          <div className='flex items-center gap-4 flex-nowrap'>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className='flex items-center flex-nowrap gap-1'>
-                  {user?.firstName} <LucideChevronDown size={16} className='relative top-[1px]' />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Orders</DropdownMenuItem>
-                <DropdownMenuItem>Returns</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <LucideShoppingCart size={20} />
-          </div>
-        )}
+        <div className='mr-4'>
+          {!isAuthenticated ? (
+            <Button onClick={handleSignInButtonClicked}>Sign in</Button>
+          ) : (
+            <div className='flex items-center gap-4 flex-nowrap'>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <div className='flex items-center flex-nowrap gap-1'>
+                    {user?.firstName} <LucideChevronDown size={16} className='relative top-[1px]' />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Account</DropdownMenuItem>
+                  <DropdownMenuItem>Orders</DropdownMenuItem>
+                  <DropdownMenuItem>Returns</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+        {renderCartButton()}
       </nav>
     )
   }
