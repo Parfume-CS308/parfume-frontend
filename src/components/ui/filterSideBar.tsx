@@ -1,58 +1,51 @@
+import initialFilters from '@/constants/initialFilters'
+import { Genders, PerfumeTypes } from '@/types/enums'
 import React, { useState } from 'react'
 
 export interface FilterState {
+  category: string[]
+  brand: string[]
   gender: string[]
-  essence: string[]
+  type: string[]
   priceRange: {
     min: number
     max: number
   }
   rating: number
-  category: string[]
 }
 
 interface FilterSidebarProps {
   onFilterChange: (filters: FilterState) => void
-  initialFilters?: FilterState
+  brands: string[]
+  categories: string[]
+  filters: FilterState
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFilters }) => {
-  const [filters, setFilters] = useState<FilterState>({
-    gender: [],
-    essence: [],
-    priceRange: {
-      min: 0,
-      max: 1000
-    },
-    rating: 0,
-    category: []
-  })
-
-  const handleCheckboxChange = (filterType: keyof FilterState, value: string) => {
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ brands, categories, filters, onFilterChange }) => {
+  const handleCheckboxChange = (filterType: 'category' | 'brand' | 'gender' | 'type', value: string) => {
     const updatedFilters = { ...filters }
     const array = updatedFilters[filterType] as string[]
 
     if (array.includes(value)) {
       // Remove value if already selected
-      // updatedFilters[filterType] = array.filter(item => item !== value);
+      updatedFilters[filterType] = array.filter(item => item !== value)
     } else {
       // Add value if not selected
-      // updatedFilters[filterType] = [...array, value];
+      updatedFilters[filterType] = [...array, value]
     }
 
-    setFilters(updatedFilters)
     onFilterChange(updatedFilters)
   }
 
   const handlePriceChange = (value: number) => {
     const updatedFilters = {
       ...filters,
-      priceRange: {
+      priceRange: structuredClone({
         ...filters.priceRange,
         max: value
-      }
+      })
     }
-    setFilters(updatedFilters)
+
     onFilterChange(updatedFilters)
   }
 
@@ -61,7 +54,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFi
       ...filters,
       rating: value
     }
-    setFilters(updatedFilters)
+
     onFilterChange(updatedFilters)
   }
 
@@ -75,9 +68,26 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFi
 
       {/* Gender Filter */}
       <div className='mb-6'>
+        <h3 className='font-semibold text-gray-700 mb-3'>Brand</h3>
+        <div className='space-y-2'>
+          {brands.map(brand => (
+            <label key={brand} className='flex items-center'>
+              <input
+                type='checkbox'
+                checked={filters.brand.includes(brand)}
+                onChange={() => handleCheckboxChange('brand', brand)}
+                className='form-checkbox rounded text-blue-600'
+              />
+              <span className='ml-2 text-gray-700'>{brand}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      {/* Gender Filter */}
+      <div className='mb-6'>
         <h3 className='font-semibold text-gray-700 mb-3'>Gender</h3>
         <div className='space-y-2'>
-          {['Male', 'Female', 'Unisex'].map(gender => (
+          {Object.values(Genders).map(gender => (
             <label key={gender} className='flex items-center'>
               <input
                 type='checkbox'
@@ -95,15 +105,15 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFi
       <div className='mb-6'>
         <h3 className='font-semibold text-gray-700 mb-3'>Essence</h3>
         <div className='space-y-2'>
-          {['EDT', 'EDP', 'Parfum'].map(essence => (
-            <label key={essence} className='flex items-center'>
+          {Object.values(PerfumeTypes).map(type => (
+            <label key={type} className='flex items-center'>
               <input
                 type='checkbox'
-                checked={filters.essence.includes(essence)}
-                onChange={() => handleCheckboxChange('essence', essence)}
+                checked={filters.type.includes(type)}
+                onChange={() => handleCheckboxChange('type', type)}
                 className='form-checkbox rounded text-blue-600'
               />
-              <span className='ml-2 text-gray-700'>{essence}</span>
+              <span className='ml-2 text-gray-700'>{type}</span>
             </label>
           ))}
         </div>
@@ -153,7 +163,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFi
       <div className='mb-6'>
         <h3 className='font-semibold text-gray-700 mb-3'>Category</h3>
         <div className='space-y-2'>
-          {['Summer', 'Winter', 'Spring/Fall'].map(category => (
+          {categories.map(category => (
             <label key={category} className='flex items-center'>
               <input
                 type='checkbox'
@@ -170,15 +180,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ onFilterChange, initialFi
       {/* Reset Filters Button */}
       <button
         onClick={() => {
-          const resetFilters = {
-            gender: [],
-            essence: [],
-            priceRange: { min: 0, max: 1000 },
-            rating: 0,
-            category: []
-          }
-          setFilters(resetFilters)
-          onFilterChange(resetFilters)
+          onFilterChange(initialFilters)
         }}
         className='w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'
       >

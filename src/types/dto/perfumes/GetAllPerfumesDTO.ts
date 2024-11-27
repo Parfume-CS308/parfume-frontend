@@ -1,4 +1,4 @@
-import { Genders, PerfumeTypes, SortByTypes } from '@/types/enums'
+import { Genders, PerfumeTypes, SortOptions } from '@/types/enums'
 
 export type getAllPerfumesDTO = {
   categoryIds?: string[]
@@ -6,6 +6,6 @@ export type getAllPerfumesDTO = {
   maxPrice?: number
   brands?: string[]
   genders?: Genders[]
-  type?: PerfumeTypes
-  sortBy?: SortByTypes
+  type?: PerfumeTypes[]
+  sortBy?: SortOptions
 }

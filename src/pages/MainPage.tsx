@@ -1,34 +1,50 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import FilterSidebar, { FilterState } from '../components/ui/filterSideBar'
 import ProductCard from '../components/ui/productcard'
-import { getPerfumesRequest } from '@/api'
+import { getCategoriesRequest, getPerfumesRequest } from '@/api'
 import { getAllPerfumesDTO } from '@/types/dto/perfumes/GetAllPerfumesDTO'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO'
-
-type SortOption = 'price-asc' | 'price-desc' | 'popularity'
+import initialFilters from '@/constants/initialFilters'
+import { PerfumeCategory } from '@/types/entity/Perfume'
+import { Genders, PerfumeTypes, SortOptions } from '@/types/enums'
+import { debounce } from 'lodash'
+import { getSortOptionName } from '@/lib/helpers/sortOptionHelper'
 
 const MainPage: React.FC = () => {
+  // #region States & Variables ===========================================================
   const [perfumes, setPerfumes] = useState<GetPerfumeDetailDTO[]>([])
+  const [categories, setCategories] = useState<PerfumeCategory[]>([])
+  const [filters, setFilters] = useState<FilterState>(initialFilters)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<SortOption>('popularity')
-  const [filters, setFilters] = useState<FilterState>({
-    gender: [],
-    essence: [],
-    priceRange: { min: 0, max: 1000 },
-    rating: 0,
-    category: []
-  })
+  const [sortBy, setSortBy] = useState<SortOptions>(SortOptions.BEST_SELLER)
+
+  // #endregion
 
   // #region Mount Functions ==============================================================
   useEffect(() => {
-    getParfumes()
-  })
+    debouncedGetPerfumes({ filters, sortBy })
+  }, [filters, sortBy])
 
-  const getParfumes = async () => {
+  useEffect(() => {
+    getCategories()
+  }, [])
+
+  const getPerfumes = async ({ filters, sortBy }: { filters: FilterState; sortBy: SortOptions }) => {
+    const categoryIds = filters.category.reduce((acc: string[], categoryName) => {
+      const relatedCategory = categories.find(c => c.name === categoryName)
+      if (relatedCategory) acc.push(relatedCategory.id)
+      return acc
+    }, [])
+
     try {
       const body: getAllPerfumesDTO = {
-        minPrice: -1,
-        maxPrice: -1
+        categoryIds: categoryIds,
+        brands: filters.brand,
+        genders: filters.gender as Genders[],
+        type: filters?.type as PerfumeTypes[],
+        minPrice: filters.priceRange.min,
+        maxPrice: filters.priceRange.max,
+        sortBy: sortBy
       }
       const response = await getPerfumesRequest(body)
       setPerfumes(response.data.items)
@@ -36,13 +52,26 @@ const MainPage: React.FC = () => {
       console.error(error)
     }
   }
+
+  const debouncedGetPerfumes = useCallback(debounce(getPerfumes, 200), [])
+
+  const getCategories = async () => {
+    try {
+      const response = await getCategoriesRequest()
+      setCategories(response.data.items)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   // #endregion
 
   // #region Render Functions =============================================================
   const renderSidebar = () => {
+    const categoryNames = categories.map(c => c.name)
     return (
       <aside className='md:w-64 flex-shrink-0'>
-        <FilterSidebar onFilterChange={setFilters} initialFilters={filters} />
+        <FilterSidebar onFilterChange={setFilters} categories={categoryNames} brands={[]} filters={filters} />
       </aside>
     )
   }
@@ -83,12 +112,12 @@ const MainPage: React.FC = () => {
         </h1>
         <select
           value={sortBy}
-          onChange={e => setSortBy(e.target.value as SortOption)}
+          onChange={e => setSortBy(e.target.value as SortOptions)}
           className='px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         >
-          <option value='popularity'>Sort by Popularity</option>
-          <option value='price-asc'>Price: Low to High</option>
-          <option value='price-desc'>Price: High to Low</option>
+          {Object.values(SortOptions).map(option => (
+            <option value={option}>{getSortOptionName(option)}</option>
+          ))}
         </select>
       </div>
     )

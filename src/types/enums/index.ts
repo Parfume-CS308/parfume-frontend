@@ -1,3 +1,3 @@
 export { Genders } from './general/Genders'
-export { SortByTypes } from './general/SortByTypes'
+export { SortOptions } from './general/SortOptions'
 export { PerfumeTypes } from './perfumes/PerfumeTypes'
