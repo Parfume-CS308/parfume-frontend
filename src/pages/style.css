@@ -1,0 +1,146 @@
+.form-container {
+  max-width: 400px;
+  margin: 50px auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.primary-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #b07d56, #c89d73);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s ease;
+}
+
+.primary-button:hover {
+  background: linear-gradient(135deg, #9e6f4b, #b78d66);
+  transform: scale(1.05);
+}
+
+.secondary-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #3d3d3d;
+  background: #efe7db;
+  border: 1px solid #b07d56;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s ease;
+}
+
+.secondary-button:hover {
+  background: #e2d6c5;
+  transform: scale(1.05);
+}
+
+.success-message {
+  color: #28a745;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.account-container {
+  max-width: 600px;
+  margin: 50px auto;
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.account-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.account-details {
+  text-align: left;
+  margin-top: 20px;
+}
+
+.account-details p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.account-details strong {
+  font-weight: 600;
+  color: #555;
+}
+
+.loading-message {
+  font-size: 16px;
+  color: #888;
+  margin-top: 20px;
+}
+
+.primary-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 20px;
+}

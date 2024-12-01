@@ -9,14 +9,17 @@ import AuthContextProvider from "./data/contexts/AuthContext";
 import useAuth from "./hooks/contexts/useAuth";
 import { USER_ROLE } from "./types/entity/User";
 import ErrorPage from "./pages/ErrorPage";
-import MainPage from "./pages/MainPage";
+import MainPage from "./pages/MainPage"; // Import MainPage
+import AccountPage from "./pages/AccountPage";
 import CartContextProvider from "./data/contexts/CartContext";
+
 
 const Authorize = lazy(() => import("./pages/Authorize"));
 const AppStore = lazy(() => import("./AppStore"));
 const AboutPage = lazy(() => import("./pages/store/AboutPage"));
 const PerfumeDetailPage = lazy(() => import("./pages/PerfumeDetailPage"));
 const CartPage = lazy(() => import("./pages/CartPage"));
+
 
 const queryClient = new QueryClient();
 
@@ -41,9 +44,10 @@ function App() {
     const customerRoutes = (
       <>
         <Route path="/" element={<AppStore />}>
-          <Route index element={<MainPage />} />
+          <Route index element={<MainPage />} /> 
           <Route path="about" element={<AboutPage />} />
           <Route path="perfume/:id" element={<PerfumeDetailPage />} />
+          <Route path="account" element={<AccountPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="*" element={<ErrorPage />} />
         </Route>
