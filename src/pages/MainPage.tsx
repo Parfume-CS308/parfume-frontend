@@ -22,14 +22,22 @@ const MainPage: React.FC = () => {
 
   // #region Mount Functions ==============================================================
   useEffect(() => {
-    debouncedGetPerfumes({ filters, sortBy })
+    debouncedGetPerfumes({ filters, sortBy, categories: categories })
   }, [filters, sortBy])
 
   useEffect(() => {
     getCategories()
   }, [])
 
-  const getPerfumes = async ({ filters, sortBy }: { filters: FilterState; sortBy: SortOptions }) => {
+  const getPerfumes = async ({
+    filters,
+    sortBy,
+    categories
+  }: {
+    filters: FilterState
+    sortBy: SortOptions
+    categories: PerfumeCategory[]
+  }) => {
     const categoryIds = filters.category.reduce((acc: string[], categoryName) => {
       const relatedCategory = categories.find(c => c.name === categoryName)
       if (relatedCategory) acc.push(relatedCategory.id)
@@ -115,8 +123,10 @@ const MainPage: React.FC = () => {
           onChange={e => setSortBy(e.target.value as SortOptions)}
           className='px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
         >
-          {Object.values(SortOptions).map(option => (
-            <option value={option}>{getSortOptionName(option)}</option>
+          {Object.values(SortOptions).map((option, index) => (
+            <option key={index} value={option}>
+              {getSortOptionName(option)}
+            </option>
           ))}
         </select>
       </div>

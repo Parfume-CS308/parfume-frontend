@@ -12,11 +12,20 @@ const initialState: stateType = {
   user: undefined
 }
 
-export const AuthContext = createContext({
-  ...initialState,
-  login: (user: User) => {},
+type AuthContextType = {
+  isAuthenticated: boolean
+  user?: User
+  login: (user: User) => void
+  logout: () => void
+  me: () => Promise<boolean>
+}
+
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  user: undefined,
+  login: () => {},
   logout: () => {},
-  me: () => {}
+  me: () => Promise.resolve(false)
 })
 
 const reducer = (state: stateType, action: { type: string; payload: any }) => {
@@ -58,12 +67,13 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   // #region Helper Functions =============================================================
   const me = async () => {
     try {
-      if (!state.isAuthenticated) return
       const response = await meRequest()
       login(response.data.user)
+      return true
     } catch (error) {
       console.log(error)
       logout()
+      return false
     }
   }
   // #endregion
