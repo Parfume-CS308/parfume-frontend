@@ -1,31 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getCartRequest } from "@/api/cart";
-import { Cart } from "@/types/cart";
+import useCart from "@/hooks/contexts/useCart";
 import { Button } from "@/components/ui/button";
 
 const CartPage: React.FC = () => {
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { basket, isLoading, removeFromBasket } = useCart();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getCartRequest();
-      setCart(response.data.cart);
-    } catch (err) {
-      setError("Failed to load cart");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -35,21 +15,16 @@ const CartPage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">{error}</div>
-      </div>
-    );
-  }
-
-  if (!cart || cart.items.length === 0) {
+  if (basket.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
         <div className="text-center py-8">
           <p className="text-gray-500">Your cart is empty</p>
-          <Button onClick={() => navigate("/")} className="mt-4">
+          <Button
+            onClick={() => navigate("/")}
+            className="mt-4 bg-[#956F5A] hover:bg-[#7d5d4a]"
+          >
             Continue Shopping
           </Button>
         </div>
@@ -57,13 +32,20 @@ const CartPage: React.FC = () => {
     );
   }
 
+  const calculateTotal = () => {
+    return basket.reduce(
+      (total, item) => total + item.basePrice * item.quantity,
+      0
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
       <div className="grid md:grid-cols-3 gap-8">
         {/* Cart Items List */}
         <div className="md:col-span-2">
-          {cart.items.map((item) => (
+          {basket.map((item) => (
             <div
               key={`${item.perfumeId}-${item.volume}`}
               className="bg-white rounded-lg p-4 shadow-sm flex items-center gap-4 mb-4"
@@ -77,6 +59,12 @@ const CartPage: React.FC = () => {
                   <div className="text-sm text-gray-600">
                     Quantity: {item.quantity}
                   </div>
+                  <button
+                    onClick={() => removeFromBasket(item.perfumeId)}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
             </div>
@@ -89,10 +77,12 @@ const CartPage: React.FC = () => {
           <div className="space-y-2 mb-4">
             <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>${cart.totalPrice}</span>
+              <span>${calculateTotal().toFixed(2)}</span>
             </div>
           </div>
-          <Button className="w-full">Proceed to Checkout</Button>
+          <Button className="w-full bg-[#956F5A] hover:bg-[#7d5d4a]">
+            Proceed to Checkout
+          </Button>
         </div>
       </div>
     </div>
