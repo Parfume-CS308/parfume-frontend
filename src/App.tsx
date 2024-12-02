@@ -76,15 +76,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastContextProvider>
-        <AuthContextProvider>
-          <CartContextProvider>
-            <BrowserRouter>
-              <Suspense fallback={<div>Loading...</div>}>
-                <Routes>{getRoutes()}</Routes>
-              </Suspense>
-            </BrowserRouter>
-          </CartContextProvider>
-        </AuthContextProvider>
+        <CartContextProvider>
+          <BrowserRouter>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>{getRoutes()}</Routes>
+            </Suspense>
+          </BrowserRouter>
+        </CartContextProvider>
       </ToastContextProvider>
     </QueryClientProvider>
   )
