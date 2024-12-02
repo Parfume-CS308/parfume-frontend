@@ -1,7 +1,10 @@
-import axios from "axios";
-import { CartResponse, SyncCartRequest } from "../types/cart";
+import axios from 'axios'
+import { CartResponse, SyncCartRequest } from '../types/cart'
 
-export const getCartRequest = () => axios.get<CartResponse>("/cart");
+const ENDPOINT = '/cart'
 
-export const syncCartRequest = (data: SyncCartRequest) =>
-  axios.post<CartResponse>("/cart/sync", data);
+const getCart = () => axios.get<CartResponse>(ENDPOINT)
+
+const syncCart = (data: SyncCartRequest) => axios.post<CartResponse>(ENDPOINT + '/sync', data)
+
+export { getCart, syncCart }

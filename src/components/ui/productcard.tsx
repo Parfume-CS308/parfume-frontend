@@ -9,7 +9,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
-  const { getBasketProduct, addToBasket } = useCart()
+  const { getBasketProduct, addToBasket, removeFromBasket } = useCart()
   const basketProduct = getBasketProduct(perfume.id)
   const navigate = useNavigate()
 
@@ -31,6 +31,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       quantity: 1,
       basePrice: basePrice
     })
+  }
+
+  const handleRemoveFromBasketClick = () => {
+    removeFromBasket(perfume.id)
+  }
+
+  const handleBasketButtonClick = () => {
+    if (basketProduct) {
+      handleRemoveFromBasketClick()
+    } else {
+      handleAddToBasketClick()
+    }
   }
 
   // #endregion
@@ -118,7 +130,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <button
         onClick={e => {
           e.stopPropagation()
-          handleAddToBasketClick()
+          handleBasketButtonClick()
         }}
         disabled={!inStock}
         className={`absolute bottom-2 right-2 p-2 rounded-full transition-colors ${

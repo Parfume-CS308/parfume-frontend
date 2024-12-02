@@ -3,30 +3,89 @@ import { useParams, useNavigate } from 'react-router-dom'
 import StarRating from '../components/ui/StarRating.tsx'
 import FragranceNotes from '../components/ui/FragranceNotes.tsx'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO.ts'
-import { getPerfumeRequest } from '@/api/index.ts'
+import { getPerfumeRequest, makeReviewRequest } from '@/api/index.ts'
+import { getAllPublicReviewsForPerfume } from '@/api/review.ts'
+import { cn } from '../lib/utils'
+import useCart from '@/hooks/contexts/useCart.tsx'
+import { Textarea } from '@/components/ui/textarea.tsx'
+import { Review } from '@/types/entity/Review.ts'
+import useAuth from '@/hooks/contexts/useAuth.tsx'
 
 const PerfumeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [isLoading, setIsLoading] = useState(true)
   const [perfume, setPerfume] = useState<GetPerfumeDetailDTO | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [selectedVariant, setSelectedVariant] = useState(0)
+  const [comment, setComment] = useState('')
 
   const navigate = useNavigate()
+  const { addToBasket, getBasketProduct } = useCart()
+  const { isAuthenticated, user } = useAuth()
+
+  const basketProduct = getBasketProduct(id ?? '')
 
   // #region Mount Functions ==============================================================
   useEffect(() => {
     getPerfume()
+    getPerfumeReviews()
   }, [])
 
   const getPerfume = async () => {
     try {
       if (id) {
         const response = await getPerfumeRequest(id)
+        const minVolume = response.data.item.variants.reduce((prev, current) =>
+          prev.volume < current.volume ? prev : current
+        )
+        setSelectedVariant(minVolume.volume)
         setPerfume(response.data.item)
       }
     } catch (error) {
       console.error(error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const getPerfumeReviews = async () => {
+    try {
+      if (id) {
+        const response = await getAllPublicReviewsForPerfume(id)
+        setReviews(response.data.reviews)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  // #endregion
+
+  // #region Handler Functions ============================================================
+  const handleAddToBasket = (perfume: GetPerfumeDetailDTO | null) => {
+    const price = perfume?.variants.find(v => v.volume === selectedVariant)?.price
+    const basketItem = {
+      perfumeId: perfume?.id ?? '',
+      perfumeName: perfume?.name ?? '',
+      brand: perfume?.brand ?? '',
+      volume: selectedVariant,
+      quantity: 1,
+      basePrice: price ?? 0
+    }
+
+    if (basketItem) {
+      addToBasket(basketItem)
+    }
+  }
+
+  const handleMakeReview = async () => {
+    try {
+      if (id) {
+        const response = await makeReviewRequest(id, { rating: 5, comment })
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
   // #endregion
@@ -45,6 +104,114 @@ const PerfumeDetailPage: React.FC = () => {
             ← Back to Products
           </button>
         </div>
+      </div>
+    )
+  }
+
+  const renderVariantSelector = () => {
+    const selected = perfume?.variants.find(v => v.volume === selectedVariant)
+    const inStock = selected ? selected.stock > 0 : false
+    return (
+      <>
+        <div className='flex items-center gap-2'>
+          {perfume?.variants.map(variant => (
+            <span
+              className={cn('p-4 border-blue-700 border-2 cursor-pointer', {
+                'bg-blue-700 text-white': selectedVariant === variant.volume
+              })}
+              onClick={() => setSelectedVariant(variant.volume)}
+            >
+              {variant.volume}
+            </span>
+          ))}
+        </div>
+        <p className='text-3xl font-bold text-gray-900 mt-2'>${selected?.price} </p>
+
+        <div className='flex flex-wrap gap-2'>
+          <span className='px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700'>{perfume?.gender}</span>
+          {!inStock && <span className='px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm'>Out of Stock</span>}
+        </div>
+
+        <p className='text-gray-700'>{perfume?.description}</p>
+
+        <button
+          className={`w-full py-3 rounded-lg text-white font-medium ${
+            !inStock || !!basketProduct ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+          disabled={!inStock || !!basketProduct}
+          onClick={() => handleAddToBasket(perfume)}
+        >
+          {inStock ? 'Add to Cart' : 'Out of Stock'}
+        </button>
+      </>
+    )
+  }
+
+  const renderRatingSection = () => {
+    const reviewPointCount = reviews.reduce((acc, review) => {
+      acc[review.rating] = (acc[review.rating] || 0) + 1
+      return acc
+    }, {} as { [key: number]: number })
+
+    const fullName = isAuthenticated ? `${user?.firstName} ${user?.lastName}` : 'Anonymous'
+    const hasComment = reviews.some(review => review.user === fullName && review.comment)
+
+    return (
+      <div className='bg-white rounded-lg shadow-lg p-8'>
+        <h2 className='text-2xl font-bold mb-6'>Ratings & Reviews</h2>
+
+        <div className='flex items-center gap-8 mb-8'>
+          <div className='text-center'>
+            <div className='text-4xl font-bold text-gray-900 mb-2'>{perfume?.averageRating?.toFixed(1) ?? 0}</div>
+            <StarRating rating={perfume?.averageRating ?? 0} size='lg' showNumber={false} />
+            <div className='text-sm text-gray-500 mt-1'>{perfume?.averageRating} ratings</div>
+          </div>
+
+          <div className='flex-1 space-y-2'>
+            {[5, 4, 3, 2, 1].map((star, index) => {
+              const percentage = reviewPointCount[star]
+                ? ((reviewPointCount[star] / reviews.length) * 100).toFixed(1)
+                : 0
+              return (
+                <div key={index} className='flex items-center gap-2'>
+                  <div className='w-12 text-sm text-gray-600'>{star} stars</div>
+                  <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
+                    <div className='h-full bg-yellow-400 rounded-full' style={{ width: `${percentage}%` }} />
+                  </div>
+                  <div className='w-12 text-sm text-gray-500'>{percentage}%</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        <div className='flex flex-col gap-4 mb-8'>
+          {reviews?.map(review => {
+            if (review.comment && review.isApproved) {
+              return (
+                <div key={review.id} className='flex items-start gap-4'>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2'>
+                      <h3 className='text-lg font-bold'>{review.user}</h3>
+                      <StarRating rating={review.rating} size='sm' />
+                    </div>
+                    <p className='text-gray-600'>{review.comment}</p>
+                  </div>
+                </div>
+              )
+            }
+          })}
+        </div>
+        {isAuthenticated && (
+          <div>
+            <Textarea className='mb-4' value={comment} onChange={e => setComment(e.target.value)} />
+            <button
+              className='w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors'
+              onClick={handleMakeReview}
+            >
+              Write a Review
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -88,38 +255,10 @@ const PerfumeDetailPage: React.FC = () => {
 
               <div className='flex items-center gap-2'>
                 <StarRating rating={perfume.averageRating ?? 0} size='lg' />
-                <span className='text-gray-500'>({perfume.averageRating ?? 0} ratings)</span>
+                <span className='text-gray-500'>({reviews.length} ratings)</span>
               </div>
 
-              <div className='flex items-center gap-2'>
-                {/* {perfume.discountedPrice ? (
-                  <>
-                    <span className='text-2xl line-through text-gray-500'>${fragrance.originalPrice}</span>
-                    <span className='text-3xl font-bold text-blue-600'>${fragrance.discountedPrice}</span>
-                  </>
-                ) : ( */}
-                <span className='text-3xl font-bold text-gray-900'>${0}</span>
-                {/* // TODO: Change to minPrice */}
-                {/* )} */}
-              </div>
-
-              <div className='flex flex-wrap gap-2'>
-                <span className='px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700'>{perfume.gender}</span>
-                {/* {!fragrance.inStock && (
-                  <span className='px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm'>Out of Stock</span>
-                )} */}
-              </div>
-
-              <p className='text-gray-700'>{perfume.description}</p>
-
-              {/* <button
-                className={`w-full py-3 rounded-lg text-white font-medium ${
-                  fragrance.inStock ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
-                }`}
-                disabled={!fragrance.inStock}
-              >
-                {fragrance.inStock ? 'Add to Cart' : 'Out of Stock'}
-              </button> */}
+              {renderVariantSelector()}
             </div>
           </div>
         </div>
@@ -130,36 +269,7 @@ const PerfumeDetailPage: React.FC = () => {
           {/* <FragranceNotes top={fragrance.notes.top} heart={fragrance.notes.heart} base={fragrance.notes.base} /> */}
 
           {/* Ratings Section */}
-          <div className='bg-white rounded-lg shadow-lg p-8'>
-            <h2 className='text-2xl font-bold mb-6'>Ratings & Reviews</h2>
-
-            <div className='flex items-center gap-8 mb-8'>
-              <div className='text-center'>
-                <div className='text-4xl font-bold text-gray-900 mb-2'>{perfume.averageRating?.toFixed(1) ?? 0}</div>
-                <StarRating rating={perfume.averageRating ?? 0} size='lg' showNumber={false} />
-                <div className='text-sm text-gray-500 mt-1'>{perfume.averageRating} ratings</div>
-              </div>
-
-              <div className='flex-1 space-y-2'>
-                {[5, 4, 3, 2, 1].map(stars => {
-                  const percentage = Math.random() * 100
-                  return (
-                    <div key={stars} className='flex items-center gap-2'>
-                      <div className='w-12 text-sm text-gray-600'>{stars} stars</div>
-                      <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                        <div className='h-full bg-yellow-400 rounded-full' style={{ width: `${percentage}%` }} />
-                      </div>
-                      <div className='w-12 text-sm text-gray-500'>{Math.round(percentage)}%</div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            <button className='w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors'>
-              Write a Review
-            </button>
-          </div>
+          {renderRatingSection()}
         </div>
       </div>
     </div>
