@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getOrdersRequest } from "@/api";
-import { Order } from "@/types/orderTypes.ts"; // Adjust the import path as needed
-
-interface OrderItem {
-  perfumeId: string;
-  volume: number;
-  quantity: number;
-  price: number;
-  totalPrice: number;
-}
+import { getOrdersRequest } from "@/api"; // Adjust the import path as necessary
+import { Order } from "@/types/orderTypes"; // Adjust the import path as necessary
+import { format } from "date-fns";
 
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -31,16 +24,16 @@ const OrdersPage: React.FC = () => {
   };
 
   const getStatusBadge = (status: Order["status"]) => {
-    const styles = {
-      PROCESSING: "bg-blue-100 text-blue-800",
-      SHIPPED: "bg-amber-100 text-amber-800",
-      DELIVERED: "bg-green-100 text-green-800",
-      CANCELLED: "bg-red-100 text-red-800",
+    const statusStyles: { [key in Order["status"]]: string } = {
+      PROCESSING: "bg-blue-500 text-white",
+      SHIPPED: "bg-yellow-500 text-white",
+      DELIVERED: "bg-green-500 text-white",
+      CANCELLED: "bg-red-500 text-white",
     };
 
     return (
       <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${styles[status]}`}
+        className={`px-3 py-1 rounded-full text-sm font-semibold ${statusStyles[status]}`}
       >
         {status.charAt(0) + status.slice(1).toLowerCase()}
       </span>
@@ -49,110 +42,103 @@ const OrdersPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-gray-500">Loading orders...</div>
+      <div className="container mx-auto px-4 py-12 text-center">
+        <div className="text-gray-500 text-lg font-medium">
+          Loading your orders...
+        </div>
       </div>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-2xl font-bold mb-4">My Orders</h1>
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            <p className="text-gray-500 mb-4">
-              You haven't placed any orders yet.
-            </p>
-            <Button onClick={() => (window.location.href = "/")}>
-              Start Shopping
-            </Button>
-          </div>
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-md mx-auto text-center bg-white shadow-lg rounded-lg p-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            No Orders Found
+          </h2>
+          <p className="text-gray-500 mb-6">
+            You haven’t placed any orders yet. Start shopping now!
+          </p>
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
+          >
+            Start Shopping
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">My Orders</h1>
+    <div className="container mx-auto px-4 py-12">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Your Orders</h1>
+      <div className="space-y-6">
+        {orders.map((order) => (
+          <div
+            key={order.orderId}
+            className="bg-white shadow-lg rounded-lg overflow-hidden"
+          >
+            {/* Order Header */}
+            <div className="border-b border-gray-200 p-6 flex justify-between items-center">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Order #{order.orderId.slice(-8)}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Placed on {format(new Date(order.createdAt), "MMMM d, yyyy")}
+                </p>
+              </div>
+              {getStatusBadge(order.status)}
+            </div>
 
-        <div className="space-y-6">
-          {orders.map((order) => (
-            <div
-              key={order.orderId}
-              className="bg-white rounded-lg shadow-sm overflow-hidden"
-            >
-              {/* Order Header */}
-              <div className="p-6 border-b border-gray-100">
-                <div className="flex justify-between items-start">
+            {/* Order Items */}
+            <div className="divide-y divide-gray-200">
+              {order.items.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4"
+                >
                   <div>
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold">
-                        Order #{order.orderId.slice(-8)}
-                      </h3>
-                      {getStatusBadge(order.status)}
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Ordered on{" "}
-                      {format(new Date(order.createdAt), "MMMM d, yyyy")}
+                    <p className="font-medium text-gray-800">
+                      {item.perfumeId}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {item.volume}ml × {item.quantity}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Total Amount</p>
-                    <p className="text-lg font-bold">${order.totalAmount}</p>
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      ${item.totalPrice}
+                    </p>
+                    <p className="text-sm text-gray-500">${item.price} each</p>
                   </div>
                 </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="px-6">
-                {order.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`py-4 flex items-center justify-between ${
-                      index < order.items.length - 1
-                        ? "border-b border-gray-100"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <p className="font-medium">{item.perfumeId}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-500">
-                            {item.volume}ml
-                          </span>
-                          <span className="text-sm text-gray-500">×</span>
-                          <span className="text-sm text-gray-500">
-                            {item.quantity}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">${item.totalPrice}</p>
-                      <p className="text-sm text-gray-500">
-                        ${item.price} each
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Order Footer */}
-              <div className="p-6 bg-gray-50 flex justify-between items-center">
-                <div className="text-sm text-gray-500">
-                  {order.items.length} item{order.items.length > 1 ? "s" : ""}
-                </div>
-                {order.status === "DELIVERED" && (
-                  <Button variant="outline">Request Refund</Button>
-                )}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Order Footer */}
+            <div className="p-6 bg-gray-50 flex justify-between items-center">
+              <p className="text-sm text-gray-600">
+                Total:{" "}
+                <span className="font-semibold">${order.totalAmount}</span>
+              </p>
+              {order.status === "DELIVERED" && (
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+                  onClick={() =>
+                    alert(
+                      `Refund request for order ${order.orderId} initiated.`
+                    )
+                  }
+                >
+                  Request Refund
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
