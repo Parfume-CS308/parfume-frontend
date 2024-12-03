@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import useAuth from '@/hooks/contexts/useAuth'
 import { useLocation, useNavigate } from 'react-router-dom'
 import '../../styles/invoice.css'
+import { format } from 'date-fns'
 
 interface propState {
   orderDetails: {
@@ -10,9 +11,7 @@ interface propState {
     cardLastFourDigits: string
     taxId: string
     items: {
-      perfume: {
-        name: string
-      }
+      perfumeName: string
       volume: number
       quantity: number
       price: number
@@ -29,7 +28,7 @@ const ThankYouPage = (props: Props) => {
   const { user } = useAuth()
   // get the order id from history state
   const { orderDetails: order } = location.state as propState
-
+  console.log('FILTERED ORDER', order)
   const renderInvoice = () => {
     if (!order) return null
     return (
@@ -44,7 +43,9 @@ const ThankYouPage = (props: Props) => {
             <div>
               <strong>Invoice Number:</strong> {order.invoiceNumber}
             </div>
-            {/* <div><strong>Date:</strong> ${format(new Date(), 'dd/MM/yyyy')}</div> */}
+            <div>
+              <strong>Date:</strong> {format(new Date(), 'dd/MM/yyyy')}
+            </div>
           </div>
 
           <div className='info-section'>
@@ -76,7 +77,7 @@ const ThankYouPage = (props: Props) => {
             <tbody>
               {order.items.map(item => (
                 <tr>
-                  <td>ITEM NAME HERE // TODO:</td>
+                  <td>{item.perfumeName}</td>
 
                   <td>{item.volume}ml</td>
                   <td>{item.quantity}</td>

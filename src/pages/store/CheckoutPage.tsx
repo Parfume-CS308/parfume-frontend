@@ -44,7 +44,7 @@ const checkoutSchema = z.object({
 
 const CheckoutPage: React.FC = () => {
   const { isAuthenticated } = useAuth()
-  const { basket, syncCart } = useCart()
+  const { basket, emptyCart } = useCart()
   const { addToast } = useToast()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
@@ -81,7 +81,7 @@ const CheckoutPage: React.FC = () => {
 
       if (response.status === 201) {
         addToast('default', 'Order completed successfully')
-
+        emptyCart()
         navigate('/thank-you', {
           state: {
             orderDetails: response.data.orderDetails

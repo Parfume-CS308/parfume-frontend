@@ -9,8 +9,17 @@ export const getAllPublicReviewsForPerfume = async (perfumeId: string) => {
 
 export const makeReview = async (perfumeId: string, review: any) => {
   const response = await axios.post(`${ENDPOINT}/${perfumeId}`, {
-    rating: review.rating,
     comment: review.comment
   })
+  return response
+}
+
+export const getAverageRating = async (perfumeId: string) => {
+  const response = await axios.get(`${ENDPOINT}/rating/${perfumeId}`)
+  return response
+}
+
+export const makeRating = async (perfumeId: string, body: { rating: number }) => {
+  const response = await axios.post(`${ENDPOINT}/rating/${perfumeId}`, body)
   return response
 }

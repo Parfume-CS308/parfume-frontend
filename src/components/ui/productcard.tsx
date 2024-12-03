@@ -80,7 +80,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
     return (
       <div className='relative h-72'>
         <img src={perfume.assetUrl} alt={`${perfume.name}`} className='w-full h-full object-contain rounded-lg' />
-        <button
+        {/* <button
           className='absolute top-2 right-2 text-gray-500 hover:text-red-500'
           onClick={e => {
             e.stopPropagation()
@@ -100,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
               d='M4.318 6.318a4.5 4.5 0 016.364 0L12 7.414l1.318-1.096a4.5 4.5 0 016.364 6.364l-7.318 7.318a.75.75 0 01-1.06 0l-7.318-7.318a4.5 4.5 0 010-6.364z'
             />
           </svg>
-        </button>
+        </button> */}
       </div>
     )
   }
@@ -110,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       return (
         <div className='flex items-center gap-2'>
           <StarRating rating={perfume.averageRating} size='sm' />
-          <span className='text-sm text-gray-500'>({perfume.averageRating})</span>
+          <span className='text-sm text-gray-500'>({perfume.reviewCount})</span>
         </div>
       )
     }

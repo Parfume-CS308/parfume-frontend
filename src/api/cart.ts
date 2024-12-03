@@ -16,4 +16,24 @@ const emptyCart = async () => {
   return await axios.post<CartResponse>(ENDPOINT + '/clear')
 }
 
-export { getCart, syncCart, emptyCart }
+const addToCart = async (data: { perfumeId: string; volume: number; quantity: number }) => {
+  return await axios.post<CartResponse>(ENDPOINT + '/add', {
+    items: [
+      {
+        perfume: data.perfumeId,
+        volume: data.volume,
+        quantity: data.quantity
+      }
+    ]
+  })
+}
+
+const removeFromCart = async (data: { perfumeId: string; volume: number; quantity: number }) => {
+  return await axios.post<CartResponse>(ENDPOINT + '/remove', {
+    perfume: data.perfumeId,
+    volume: data.volume,
+    quantity: data.quantity
+  })
+}
+
+export { getCart, syncCart, emptyCart, addToCart, removeFromCart }

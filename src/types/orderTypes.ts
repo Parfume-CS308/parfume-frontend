@@ -1,10 +1,11 @@
 // types.ts
 export interface OrderItem {
   perfumeId: string
+  perfumeName: string
   volume: number
   quantity: number
   price: number
-  totalPrice: number
+  totalAmount: number
 }
 
 export interface Order {

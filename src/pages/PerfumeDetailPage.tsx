@@ -3,19 +3,23 @@ import { useParams, useNavigate } from 'react-router-dom'
 import StarRating from '../components/ui/StarRating.tsx'
 import FragranceNotes from '../components/ui/FragranceNotes.tsx'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO.ts'
-import { getPerfumeRequest, makeReviewRequest } from '@/api/index.ts'
+import { getAverageRatingRequest, getPerfumeRequest, makeRatingRequest, makeReviewRequest } from '@/api/index.ts'
 import { getAllPublicReviewsForPerfume } from '@/api/review.ts'
 import { cn } from '../lib/utils'
 import useCart from '@/hooks/contexts/useCart.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
 import { Review } from '@/types/entity/Review.ts'
 import useAuth from '@/hooks/contexts/useAuth.tsx'
+import { AverageRating } from '@/types/entity/AverageRating.ts'
+import StarRatingSelect from '@/components/ui/StarRatingSelect.tsx'
 
 const PerfumeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [isLoading, setIsLoading] = useState(true)
   const [perfume, setPerfume] = useState<GetPerfumeDetailDTO | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
+  const [ratings, setRatings] = useState<AverageRating | null>(null)
+  const [selectedRating, setSelectedRating] = useState(0)
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [comment, setComment] = useState('')
 
@@ -29,6 +33,7 @@ const PerfumeDetailPage: React.FC = () => {
   useEffect(() => {
     getPerfume()
     getPerfumeReviews()
+    getAverageRating()
   }, [])
 
   const getPerfume = async () => {
@@ -60,6 +65,18 @@ const PerfumeDetailPage: React.FC = () => {
       setIsLoading(false)
     }
   }
+
+  const getAverageRating = async () => {
+    try {
+      if (id) {
+        const response = await getAverageRatingRequest(id)
+        setRatings(response.data.rating)
+        setSelectedRating(response.data.rating.userRating)
+      }
+    } catch (error) {
+      console.error
+    }
+  }
   // #endregion
 
   // #region Handler Functions ============================================================
@@ -83,6 +100,26 @@ const PerfumeDetailPage: React.FC = () => {
     try {
       if (id) {
         const response = await makeReviewRequest(id, { rating: 5, comment })
+        if (response.status === 200) {
+          setComment('')
+          getPerfumeReviews()
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const handleSetRating = async (rating: number) => {
+    try {
+      if (id) {
+        const response = await makeRatingRequest(id, {
+          rating
+        })
+        if (response.status === 200) {
+          setSelectedRating(rating)
+          getAverageRating()
+        }
       }
     } catch (error) {
       console.error(error)
@@ -148,13 +185,9 @@ const PerfumeDetailPage: React.FC = () => {
   }
 
   const renderRatingSection = () => {
-    const reviewPointCount = reviews.reduce((acc, review) => {
-      acc[review.rating] = (acc[review.rating] || 0) + 1
-      return acc
-    }, {} as { [key: number]: number })
+    const reviewPointCount = ratings?.ratingCounts ?? { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
 
     const fullName = isAuthenticated ? `${user?.firstName} ${user?.lastName}` : 'Anonymous'
-    const hasComment = reviews.some(review => review.user === fullName && review.comment)
 
     return (
       <div className='bg-white rounded-lg shadow-lg p-8'>
@@ -164,13 +197,16 @@ const PerfumeDetailPage: React.FC = () => {
           <div className='text-center'>
             <div className='text-4xl font-bold text-gray-900 mb-2'>{perfume?.averageRating?.toFixed(1) ?? 0}</div>
             <StarRating rating={perfume?.averageRating ?? 0} size='lg' showNumber={false} />
-            <div className='text-sm text-gray-500 mt-1'>{perfume?.averageRating} ratings</div>
+            <div className='text-sm text-gray-500 mt-1'>{ratings?.ratingCount ?? 0} ratings</div>
           </div>
 
           <div className='flex-1 space-y-2'>
             {[5, 4, 3, 2, 1].map((star, index) => {
-              const percentage = reviewPointCount[star]
-                ? ((reviewPointCount[star] / reviews.length) * 100).toFixed(1)
+              const percentage = reviewPointCount[star as keyof typeof reviewPointCount]
+                ? (
+                    (reviewPointCount[star as keyof typeof reviewPointCount] / (ratings?.ratingCount ?? 1)) *
+                    100
+                  ).toFixed(1)
                 : 0
               return (
                 <div key={index} className='flex items-center gap-2'>
@@ -184,15 +220,21 @@ const PerfumeDetailPage: React.FC = () => {
             })}
           </div>
         </div>
+        <div className='flex items-center mb-4 gap-8'>
+          <h3 className='text-xl font-bold'>{ratings?.isRated ? 'Your rating' : 'Rate the perfume'}: </h3>
+          <StarRatingSelect rating={selectedRating} setRating={handleSetRating} size='lg' />
+        </div>
         <div className='flex flex-col gap-4 mb-8'>
           {reviews?.map(review => {
-            if (review.comment && review.isApproved) {
+            if ((review.comment && review.isApproved) || review.user === fullName) {
               return (
                 <div key={review.id} className='flex items-start gap-4'>
                   <div className='flex-1'>
                     <div className='flex items-center gap-2'>
-                      <h3 className='text-lg font-bold'>{review.user}</h3>
-                      <StarRating rating={review.rating} size='sm' />
+                      <h3 className='text-lg font-bold'>
+                        {review.user}{' '}
+                        {!review.isApproved && <span style={{ fontWeight: 400 }}>(Not approved yet)</span>}
+                      </h3>
                     </div>
                     <p className='text-gray-600'>{review.comment}</p>
                   </div>
@@ -203,7 +245,14 @@ const PerfumeDetailPage: React.FC = () => {
         </div>
         {isAuthenticated && (
           <div>
-            <Textarea className='mb-4' value={comment} onChange={e => setComment(e.target.value)} />
+            <Textarea
+              className='mb-4'
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              style={{
+                resize: 'none'
+              }}
+            />
             <button
               className='w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors'
               onClick={handleMakeReview}
@@ -255,7 +304,7 @@ const PerfumeDetailPage: React.FC = () => {
 
               <div className='flex items-center gap-2'>
                 <StarRating rating={perfume.averageRating ?? 0} size='lg' />
-                <span className='text-gray-500'>({reviews.length} ratings)</span>
+                <span className='text-gray-500'>({ratings?.ratingCount ?? 0} ratings)</span>
               </div>
 
               {renderVariantSelector()}

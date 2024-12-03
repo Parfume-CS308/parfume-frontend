@@ -38,7 +38,7 @@ const ToastContextProvider = ({ children }: { children: React.ReactElement }) =>
 
     setTimeout(() => {
       removeToast(id)
-    }, 5000)
+    }, 3000)
   }
 
   const removeToast = (id: string) => {
@@ -48,7 +48,7 @@ const ToastContextProvider = ({ children }: { children: React.ReactElement }) =>
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      <div className='fixed top-4 right-4 z-50 flex flex-col gap-4'>
+      <div className='fixed top-[90px] right-4 z-50 flex flex-col gap-4'>
         {toasts.map(toast => (
           <Alert key={toast.id} variant={toast.type}>
             {toast.message}

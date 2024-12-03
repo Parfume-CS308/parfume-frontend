@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { genderRegex, passwordRegex } from '@/constants/regex'
 import useAuth from '@/hooks/contexts/useAuth'
+import useCart from '@/hooks/contexts/useCart'
 import { cn } from '@/lib/utils'
 import { User } from '@/types/entity/User'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -59,6 +60,7 @@ const Authorize = () => {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [formState, setFormState] = useState<FormState>(FormState.LOGIN)
   const { login } = useAuth()
+  const { syncCart } = useCart()
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -99,7 +101,8 @@ const Authorize = () => {
       const response = await loginRequest(data)
       if (response.status === 200) {
         const userData: User = response.data.user
-        login(userData)
+        await login(userData)
+        await syncCart()
         navigate('/')
       }
     } catch (error: any) {
@@ -117,7 +120,8 @@ const Authorize = () => {
       const response = await registerRequest(data)
       if (response.status === 200) {
         const userData: User = response.data.user
-        login(userData)
+        await login(userData)
+        await syncCart()
         navigate('/')
       }
     } catch (error: any) {
