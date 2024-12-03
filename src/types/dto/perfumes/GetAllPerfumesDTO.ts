@@ -8,4 +8,5 @@ export type getAllPerfumesDTO = {
   genders?: Genders[]
   type?: PerfumeTypes[]
   sortBy?: SortOptions
+  rating?: number
 }

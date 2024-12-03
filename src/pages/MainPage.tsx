@@ -60,7 +60,8 @@ const MainPage: React.FC = () => {
         type: filters?.type as PerfumeTypes[],
         minPrice: filters.priceRange.min,
         maxPrice: filters.priceRange.max,
-        sortBy: sortBy
+        sortBy: sortBy,
+        rating: filters.rating
       }
       const response = await getPerfumesRequest(body)
       setPerfumes(response.data.items)
