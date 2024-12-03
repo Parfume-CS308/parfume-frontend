@@ -9,9 +9,12 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { uuid4 } from '@/lib/utils'
+import { makeOrderRequest } from '@/api'
 
 const checkoutSchema = z.object({
-  address: z.string().min(1, 'Address is required'),
+  shippingAddress: z.string().min(1, 'Address is required'),
+  taxId: z.string().min(10, 'Tax ID is minimum 10 characters').max(11, 'Tax ID is maximum 11 characters'),
   cardNumber: z.string().min(16, 'Card number is required').max(16, 'Card number is invalid'),
   cardHolder: z.string().min(1, 'Card holder is required'),
   expiryDateMM: z
@@ -28,11 +31,11 @@ const checkoutSchema = z.object({
   expiryDateYY: z
     .string()
     .min(2, 'Expiry date year is required')
-    .max(2, 'Expiry date year is invalid')
+    .max(4, 'Expiry date year is invalid')
     .refine(
       data => {
         const year = parseInt(data)
-        return year >= 21 && year <= 99
+        return year >= 2024 && year <= 2099
       },
       { message: 'Expiry date year is invalid' }
     ),
@@ -41,15 +44,17 @@ const checkoutSchema = z.object({
 
 const CheckoutPage: React.FC = () => {
   const { isAuthenticated } = useAuth()
-  const { basket } = useCart()
+  const { basket, syncCart } = useCart()
   const { addToast } = useToast()
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const navigate = useNavigate()
 
   const checkoutForm = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      address: '',
+      shippingAddress: '',
+      taxId: '',
       cardNumber: '',
       cardHolder: '',
       expiryDateMM: '',
@@ -69,7 +74,27 @@ const CheckoutPage: React.FC = () => {
 
   // #region Handler Functions =============================================================
   const handleCheckoutFormSubmit: SubmitHandler<z.infer<typeof checkoutSchema>> = async data => {
-    navigate('/thank-you')
+    try {
+      const body = { ...data, campaignIds: [], paymentId: uuid4() }
+      setIsSubmitting(true)
+      const response = await makeOrderRequest(body)
+
+      if (response.status === 201) {
+        addToast('default', 'Order completed successfully')
+
+        navigate('/thank-you', {
+          state: {
+            orderDetails: response.data.orderDetails
+          }
+        })
+      } else {
+        addToast('destructive', 'Failed to complete order')
+      }
+    } catch (error) {
+      addToast('destructive', 'Failed to complete order')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   // #endregion
 
@@ -83,6 +108,16 @@ const CheckoutPage: React.FC = () => {
           <Button onClick={() => navigate('/')} className='mt-4 bg-[#956F5A] hover:bg-[#7d5d4a]'>
             Continue Shopping
           </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const renderIsSubmittingOverlay = () => {
+    return (
+      <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+        <div className='bg-white p-8 rounded-lg'>
+          <p className='text-lg font-bold'>Processing your order...</p>
         </div>
       </div>
     )
@@ -138,7 +173,7 @@ const CheckoutPage: React.FC = () => {
             <form onSubmit={checkoutForm.handleSubmit(handleCheckoutFormSubmit)} className='space-y-4 w-full'>
               <FormField
                 control={checkoutForm.control}
-                name='address'
+                name='shippingAddress'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -150,11 +185,37 @@ const CheckoutPage: React.FC = () => {
               />
               <FormField
                 control={checkoutForm.control}
+                name='taxId'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder='Tax ID' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={checkoutForm.control}
                 name='cardNumber'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder='Card number' {...field} type='number' min={1} max={9999999999999999} />
+                      <Input
+                        placeholder='Card number'
+                        type='text'
+                        {...field}
+                        onChange={e => {
+                          // check if the input is a number
+                          const value = e.target.value
+
+                          if (isNaN(Number(value)) || value?.length > 16) {
+                            return
+                          }
+
+                          field.onChange({ target: { value: value.replace(/\D/g, '') } })
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,7 +240,27 @@ const CheckoutPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem className='flex-1'>
                       <FormControl>
-                        <Input placeholder='Expiration month' {...field} type='number' min={1} max={12} />
+                        <Input
+                          placeholder='Expiration month'
+                          {...field}
+                          type='text'
+                          onChange={e => {
+                            // check if the input is a number
+                            let value = e.target.value
+
+                            if (isNaN(Number(value)) || value?.length > 2) {
+                              return
+                            }
+
+                            if (parseInt(value) > 12) {
+                              value = '12'
+                            } else if (parseInt(value) < 1) {
+                              value = '1'
+                            }
+
+                            field.onChange({ target: { value: value.replace(/\D/g, '') } })
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -191,7 +272,27 @@ const CheckoutPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem className='flex-1'>
                       <FormControl>
-                        <Input placeholder='Expiration year' {...field} type='number' min={1} max={99} />
+                        <Input
+                          placeholder='Expiration year'
+                          {...field}
+                          type='text'
+                          onChange={e => {
+                            // check if the input is a number
+                            let value = e.target.value
+
+                            if (isNaN(Number(value)) || value?.length > 4) {
+                              return
+                            }
+
+                            if (parseInt(value) > 9999) {
+                              value = '99'
+                            } else if (parseInt(value) < 1) {
+                              value = '1'
+                            }
+
+                            field.onChange({ target: { value: value.replace(/\D/g, '') } })
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,7 +305,27 @@ const CheckoutPage: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder='CVV' {...field} type='number' min={0} max={999} />
+                      <Input
+                        placeholder='CVV'
+                        {...field}
+                        type='text'
+                        onChange={e => {
+                          // check if the input is a number
+                          let value = e.target.value
+
+                          if (isNaN(Number(value)) || value?.length > 3) {
+                            return
+                          }
+
+                          if (parseInt(value) > 990) {
+                            value = '999'
+                          } else if (parseInt(value) < 1) {
+                            value = '1'
+                          }
+
+                          field.onChange({ target: { value: value.replace(/\D/g, '') } })
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,6 +339,7 @@ const CheckoutPage: React.FC = () => {
           </Form>
         </div>
       </div>
+      {isSubmitting && renderIsSubmittingOverlay()}
     </div>
   )
 }

@@ -1,10 +1,19 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { CartResponse, SyncCartRequest } from '../types/cart'
 
 const ENDPOINT = '/cart'
 
-const getCart = () => axios.get<CartResponse>(ENDPOINT)
+const getCart = async () => {
+  return await axios.get<CartResponse>(ENDPOINT)
+}
 
-const syncCart = (data: SyncCartRequest) => axios.post<CartResponse>(ENDPOINT + '/sync', data)
+const syncCart = async (data: SyncCartRequest) => {
+  const response = await axios.post<CartResponse>(ENDPOINT + '/sync', data)
+  return response
+}
 
-export { getCart, syncCart }
+const emptyCart = async () => {
+  return await axios.post<CartResponse>(ENDPOINT + '/clear')
+}
+
+export { getCart, syncCart, emptyCart }

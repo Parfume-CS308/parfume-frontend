@@ -13,17 +13,25 @@ import { getSortOptionName } from '@/lib/helpers/sortOptionHelper'
 const MainPage: React.FC = () => {
   // #region States & Variables ===========================================================
   const [perfumes, setPerfumes] = useState<GetPerfumeDetailDTO[]>([])
+  const [searchedPerfumes, setSearchedPerfumes] = useState<GetPerfumeDetailDTO[]>([])
   const [categories, setCategories] = useState<PerfumeCategory[]>([])
   const [filters, setFilters] = useState<FilterState>(initialFilters)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortOptions>(SortOptions.BEST_SELLER)
+  const [isInitialLoadCompleted, setIsInitialLoadCompleted] = useState(false)
+
+  const brands = useMemo(() => {
+    const brandSet = new Set<string>()
+    perfumes.forEach(perfume => brandSet.add(perfume.brand))
+    return Array.from(brandSet)
+  }, [isInitialLoadCompleted])
 
   // #endregion
 
   // #region Mount Functions ==============================================================
   useEffect(() => {
     debouncedGetPerfumes({ filters, sortBy, categories: categories })
-  }, [filters, sortBy])
+  }, [filters, sortBy, searchQuery])
 
   useEffect(() => {
     getCategories()
@@ -58,6 +66,8 @@ const MainPage: React.FC = () => {
       setPerfumes(response.data.items)
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsInitialLoadCompleted(true)
     }
   }
 
@@ -74,12 +84,30 @@ const MainPage: React.FC = () => {
 
   // #endregion
 
+  // #region Handler Functions ============================================================
+  useEffect(() => {
+    if (searchQuery === '') {
+      setSearchedPerfumes([])
+      return
+    }
+
+    const newPerfumes = perfumes.filter(
+      perfume =>
+        perfume.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        perfume.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        perfume.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setSearchedPerfumes(newPerfumes)
+  }, [searchQuery])
+
+  // #endregion
+
   // #region Render Functions =============================================================
   const renderSidebar = () => {
     const categoryNames = categories.map(c => c.name)
     return (
       <aside className='md:w-64 flex-shrink-0'>
-        <FilterSidebar onFilterChange={setFilters} categories={categoryNames} brands={[]} filters={filters} />
+        <FilterSidebar onFilterChange={setFilters} categories={categoryNames} brands={brands} filters={filters} />
       </aside>
     )
   }
@@ -133,6 +161,26 @@ const MainPage: React.FC = () => {
     )
   }
 
+  const renderPerfumes = () => {
+    const isSearch = searchQuery.length > 2
+    const localPerfumes = isSearch ? searchedPerfumes : perfumes
+
+    return (
+      <>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {localPerfumes.map(perfume => (
+            <ProductCard key={perfume.id} perfume={perfume} />
+          ))}
+        </div>
+
+        {localPerfumes.length === 0 && (
+          <div className='text-center py-8'>
+            <p className='text-gray-500'>No perfumes found matching your criteria.</p>
+          </div>
+        )}
+      </>
+    )
+  }
   // #endregion
 
   return (
@@ -147,17 +195,7 @@ const MainPage: React.FC = () => {
           </div>
 
           {/* Product Grid */}
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {perfumes.map(perfume => (
-              <ProductCard key={perfume.id} perfume={perfume} />
-            ))}
-          </div>
-
-          {perfumes.length === 0 && (
-            <div className='text-center py-8'>
-              <p className='text-gray-500'>No fragrances found matching your criteria.</p>
-            </div>
-          )}
+          {renderPerfumes()}
         </main>
       </div>
     </div>

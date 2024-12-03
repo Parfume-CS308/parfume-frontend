@@ -1,29 +1,29 @@
 export interface CartItem {
-  perfumeId: string;
-  perfumeName: string;
-  brand: string;
-  volume: number;
-  quantity: number;
-  basePrice: number;
+  perfumeId: string
+  perfumeName: string
+  brand: string
+  volume: number
+  quantity: number
+  basePrice: number
 }
 
 export interface Cart {
-  id: string;
-  items: CartItem[];
-  totalPrice: number;
+  id: string
+  items: CartItem[]
+  totalPrice: number
 }
 
 export interface CartResponse {
-  message: string;
-  cart: Cart;
+  message: string
+  items: Cart
 }
 
 export interface SyncCartItem {
-  perfume: string; // perfumeId
-  volume: number;
-  quantity: number;
+  perfume: string // perfumeId
+  volume: number
+  quantity: number
 }
 
 export interface SyncCartRequest {
-  items: SyncCartItem[];
+  items: SyncCartItem[]
 }

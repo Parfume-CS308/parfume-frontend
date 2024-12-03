@@ -1,18 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useCart from '@/hooks/contexts/useCart'
 import { Button } from '@/components/ui/button'
-import useAuth from '@/hooks/contexts/useAuth'
 
 const CartPage: React.FC = () => {
-  const { isAuthenticated } = useAuth()
   const { basket, removeFromBasket, syncCart } = useCart()
 
   const navigate = useNavigate()
-
-  if (isAuthenticated) {
-    syncCart()
-  }
 
   // #region Render Functions =============================================================
   const renderEmptyCart = () => {

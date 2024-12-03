@@ -13,6 +13,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   const basketProduct = getBasketProduct(perfume.id)
   const navigate = useNavigate()
 
+  const minVolumeByStock = perfume.variants.reduce((acc, variant) => {
+    if (variant.stock > 0) {
+      return Math.min(acc, variant.volume)
+    }
+    return acc
+  }, Number.MAX_SAFE_INTEGER)
+
+  const totalStock = perfume.variants.reduce((acc, variant) => acc + variant.stock, 0)
+  const isOutOfStock = totalStock === 0
+  const isLastOneItem = totalStock === 1
+
+  const minVolume = isOutOfStock ? 0 : minVolumeByStock
+  const basePrice = perfume.variants.find(variant => variant.volume === minVolume)?.price
+
   // #region Handler Functions ============================================================
 
   const handleProductCardClick = (id: string) => {
@@ -20,8 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   }
 
   const handleAddToBasketClick = () => {
-    const minVolume = Math.min(...perfume.variants.map(variant => variant.volume))
-    const basePrice = Math.min(...perfume.variants.map(variant => variant.price))
+    if (!basePrice) return
 
     addToBasket({
       perfumeId: perfume.id,
@@ -49,11 +62,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
 
   // #region Render Functions =============================================================
   const renderOutOfStockBanner = () => {
-    const hasStock = perfume.variants.some(variant => variant.stock > 0)
+    if (!isOutOfStock) return null
 
-    if (hasStock) return null
     return (
       <div className='absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm z-10'>Out of Stock</div>
+    )
+  }
+  const renderLastOneItemBanner = () => {
+    if (!isLastOneItem) return null
+
+    return (
+      <div className='absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-md text-sm z-10'>Last stock</div>
     )
   }
 
@@ -96,17 +115,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       )
     }
     const renderPrice = () => {
-      const minPrice = Math.min(...perfume.variants.map(variant => variant.price))
+      if (isOutOfStock) return null
       return (
         <div className='mt-2'>
-          {/* {discountedPrice ? (
-        <div className='flex items-center gap-2'>
-          <span className='text-gray-500 line-through'>${originalPrice}</span>
-          <span className='font-bold text-gray-900'>${discountedPrice}</span>
-        </div>
-      ) : ( */}
-          <span className='text-gray-900'>${minPrice}</span>
-          {/* )} */}
+          <span className='text-gray-900'>${basePrice}</span>
         </div>
       )
     }
@@ -115,6 +127,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='mt-4 space-y-2'>
         <div className='flex justify-between items-center'>
           <h3 className='text-lg font-semibold text-gray-700'>{perfume.name}</h3>
+          {!isOutOfStock && <p className='text-md font-semibold text-gray-700'>{minVolume}ml</p>}
         </div>
         {renderRating()}
         {renderPrice()}
@@ -123,7 +136,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   }
 
   const renderAddToBasketButton = () => {
-    const inStock = perfume.variants.some(variant => variant.stock > 0)
     const isInBasket = !!basketProduct
 
     return (
@@ -132,9 +144,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
           e.stopPropagation()
           handleBasketButtonClick()
         }}
-        disabled={!inStock}
+        disabled={isOutOfStock}
         className={`absolute bottom-2 right-2 p-2 rounded-full transition-colors ${
-          !inStock
+          isOutOfStock
             ? 'bg-gray-200 cursor-not-allowed'
             : isInBasket
             ? 'bg-green-100 text-green-600'
@@ -162,6 +174,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       className='relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white'
     >
       {renderOutOfStockBanner()}
+      {renderLastOneItemBanner()}
       {renderPerfumeImage()}
       {renderPerfumeInformation()}
       {renderAddToBasketButton()}
