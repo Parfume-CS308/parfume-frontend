@@ -1,11 +1,12 @@
-export { login as loginRequest } from './auth'
-export { register as registerRequest } from './auth'
-export { me as meRequest } from './auth'
-export { logout as logoutRequest } from './auth'
-export { getPerfumes as getPerfumesRequest } from './perfumes'
-export { getPerfume as getPerfumeRequest } from './perfumes'
-export { getCategories as getCategoriesRequest } from './categories'
-export { syncCart as syncCartRequest } from './cart'
-export { getCart as getCartRequest } from './cart'
-export { getAllPublicReviewsForPerfume as getAllPublicReviewsForPerfumeRequest } from './review'
-export { makeReview as makeReviewRequest } from './review'
+export { login as loginRequest } from "./auth";
+export { register as registerRequest } from "./auth";
+export { me as meRequest } from "./auth";
+export { logout as logoutRequest } from "./auth";
+export { getPerfumes as getPerfumesRequest } from "./perfumes";
+export { getPerfume as getPerfumeRequest } from "./perfumes";
+export { getCategories as getCategoriesRequest } from "./categories";
+export { syncCart as syncCartRequest } from "./cart";
+export { getCart as getCartRequest } from "./cart";
+export { getAllPublicReviewsForPerfume as getAllPublicReviewsForPerfumeRequest } from "./review";
+export { makeReview as makeReviewRequest } from "./review";
+export { getOrdersRequest } from "./orders";
