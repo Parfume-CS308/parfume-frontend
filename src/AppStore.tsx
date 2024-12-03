@@ -87,8 +87,8 @@ const AppInner = () => {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>Account</DropdownMenuItem>
-                  <DropdownMenuItem>Orders</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/account')}>Account</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/orders')}>Orders</DropdownMenuItem>
                   <DropdownMenuItem>Returns</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>

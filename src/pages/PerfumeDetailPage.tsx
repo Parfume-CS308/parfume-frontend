@@ -10,6 +10,8 @@ import useCart from '@/hooks/contexts/useCart.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
 import { Review } from '@/types/entity/Review.ts'
 import useAuth from '@/hooks/contexts/useAuth.tsx'
+import useToast from '@/hooks/contexts/useToast.tsx'
+import StarRatingSelect from '@/components/ui/StarRatingSelect.tsx'
 
 const PerfumeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -18,9 +20,12 @@ const PerfumeDetailPage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([])
   const [selectedVariant, setSelectedVariant] = useState(0)
   const [comment, setComment] = useState('')
+  const [isReviewLoading, setIsReviewLoading] = useState(false)
+  const [rating, setRating] = useState(0)
 
   const navigate = useNavigate()
   const { addToBasket, getBasketProduct } = useCart()
+  const { addToast } = useToast()
   const { isAuthenticated, user } = useAuth()
 
   const basketProduct = getBasketProduct(id ?? '')
@@ -82,7 +87,10 @@ const PerfumeDetailPage: React.FC = () => {
   const handleMakeReview = async () => {
     try {
       if (id) {
+        setIsReviewLoading(true)
         const response = await makeReviewRequest(id, { rating: 5, comment })
+        addToast('default', 'Review submitted successfully. It will be visible after approval.')
+        setIsReviewLoading(false)
       }
     } catch (error) {
       console.error(error)
@@ -154,7 +162,6 @@ const PerfumeDetailPage: React.FC = () => {
     }, {} as { [key: number]: number })
 
     const fullName = isAuthenticated ? `${user?.firstName} ${user?.lastName}` : 'Anonymous'
-    const hasComment = reviews.some(review => review.user === fullName && review.comment)
 
     return (
       <div className='bg-white rounded-lg shadow-lg p-8'>
@@ -207,6 +214,7 @@ const PerfumeDetailPage: React.FC = () => {
             <button
               className='w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors'
               onClick={handleMakeReview}
+              disabled={isReviewLoading}
             >
               Write a Review
             </button>

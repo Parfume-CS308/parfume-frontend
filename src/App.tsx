@@ -19,6 +19,7 @@ const ErrorPage = lazy(() => import('./pages/ErrorPage'))
 const AccountPage = lazy(() => import('./pages/AccountPage'))
 const CheckoutPage = lazy(() => import('./pages/store/CheckoutPage'))
 const ThankYouPage = lazy(() => import('./pages/store/ThankYouPage'))
+const OrdersPage = lazy(() => import('./pages/store/OrdersPage'))
 
 const queryClient = new QueryClient()
 
@@ -52,6 +53,7 @@ function App() {
           <Route path='cart' element={<CartPage />} />
           <Route path='checkout' element={<CheckoutPage />} />
           <Route path='thank-you' element={<ThankYouPage />} />
+          <Route path='orders' element={<OrdersPage />} />
           <Route path='*' element={<ErrorPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
