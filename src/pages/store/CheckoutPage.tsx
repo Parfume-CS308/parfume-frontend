@@ -14,31 +14,13 @@ import { makeOrderRequest } from '@/api'
 
 const checkoutSchema = z.object({
   shippingAddress: z.string().min(1, 'Address is required'),
-  taxId: z.string().min(10, 'Tax ID is minimum 10 characters').max(11, 'Tax ID is maximum 11 characters'),
+  taxId: z.string().refine(value => value.length === 10 || value.length === 11 || value === '', {
+    message: 'Tax ID must be 10-11 characters'
+  }),
   cardNumber: z.string().min(16, 'Card number is required').max(16, 'Card number is invalid'),
   cardHolder: z.string().min(1, 'Card holder is required'),
-  expiryDateMM: z
-    .string()
-    .min(1, 'Expiry date month is required')
-    .max(2, 'Expiry date month is invalid')
-    .refine(
-      data => {
-        const month = parseInt(data)
-        return month >= 1 && month <= 12
-      },
-      { message: 'Expiry date month is invalid' }
-    ),
-  expiryDateYY: z
-    .string()
-    .min(2, 'Expiry date year is required')
-    .max(4, 'Expiry date year is invalid')
-    .refine(
-      data => {
-        const year = parseInt(data)
-        return year >= 2024 && year <= 2099
-      },
-      { message: 'Expiry date year is invalid' }
-    ),
+  expiryDateMM: z.string().min(1, 'Expiry date month is required').max(2, 'Expiry date month is invalid'),
+  expiryDateYY: z.string().min(2, 'Expiry date year is required').max(4, 'Expiry date year is invalid'),
   cvv: z.string().min(3, 'CVV is required').max(3, 'CVV is invalid')
 })
 
@@ -75,7 +57,7 @@ const CheckoutPage: React.FC = () => {
   // #region Handler Functions =============================================================
   const handleCheckoutFormSubmit: SubmitHandler<z.infer<typeof checkoutSchema>> = async data => {
     try {
-      const body = { ...data, campaignIds: [], paymentId: uuid4() }
+      const body = { ...data, taxId: data.taxId || '', campaignIds: [], paymentId: uuid4() }
       setIsSubmitting(true)
       const response = await makeOrderRequest(body)
 
@@ -246,16 +228,20 @@ const CheckoutPage: React.FC = () => {
                           type='text'
                           onChange={e => {
                             // check if the input is a number
-                            let value = e.target.value
 
-                            if (isNaN(Number(value)) || value?.length > 2) {
+                            let value = e.target.value
+                            value.split('').forEach((char, index) => {
+                              if (isNaN(Number(char))) {
+                                return
+                              }
+                            })
+
+                            if (value?.length > 2) {
                               return
                             }
 
                             if (parseInt(value) > 12) {
                               value = '12'
-                            } else if (parseInt(value) < 1) {
-                              value = '1'
                             }
 
                             field.onChange({ target: { value: value.replace(/\D/g, '') } })
@@ -279,15 +265,21 @@ const CheckoutPage: React.FC = () => {
                           onChange={e => {
                             // check if the input is a number
                             let value = e.target.value
+                            value.split('').forEach((char, index) => {
+                              if (isNaN(Number(char))) {
+                                return
+                              }
+                            })
 
-                            if (isNaN(Number(value)) || value?.length > 4) {
+                            if (value?.length > 4) {
                               return
                             }
 
-                            if (parseInt(value) > 9999) {
-                              value = '99'
-                            } else if (parseInt(value) < 1) {
-                              value = '1'
+                            if (parseInt(value) > 2100) {
+                              value = '2100'
+                            }
+                            if (value.length === 4 && parseInt(value) < 2021) {
+                              value = '2021'
                             }
 
                             field.onChange({ target: { value: value.replace(/\D/g, '') } })
@@ -313,14 +305,18 @@ const CheckoutPage: React.FC = () => {
                           // check if the input is a number
                           let value = e.target.value
 
-                          if (isNaN(Number(value)) || value?.length > 3) {
+                          value.split('').forEach((char, index) => {
+                            if (isNaN(Number(char))) {
+                              return
+                            }
+                          })
+
+                          if (value?.length > 3) {
                             return
                           }
 
-                          if (parseInt(value) > 990) {
+                          if (parseInt(value) > 999) {
                             value = '999'
-                          } else if (parseInt(value) < 1) {
-                            value = '1'
                           }
 
                           field.onChange({ target: { value: value.replace(/\D/g, '') } })
