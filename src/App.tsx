@@ -59,7 +59,11 @@ function App() {
       </>
     )
 
-    const productManagerRoutes = <></>
+    const productManagerRoutes = (
+      <>
+        <Route path='/' element={<AppStore />} />
+      </>
+    )
     const salesManagerRoutes = <></>
 
     switch (user?.role) {

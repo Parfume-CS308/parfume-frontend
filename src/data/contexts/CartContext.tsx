@@ -14,8 +14,8 @@ type BasketItem = {
 export const CartContext = createContext({
   basket: [] as BasketItem[],
   addToBasket: (item: BasketItem) => {},
-  removeFromBasket: (id: string) => {},
-  getBasketProduct: (id: string) => ({} as BasketItem | undefined),
+  removeFromBasket: (id: string, volume: number, quantity: number) => {},
+  getBasketProduct: (id: string, volume: number) => ({} as BasketItem | undefined),
   syncCart: () => {},
   emptyCart: () => {}
 })
@@ -28,14 +28,18 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   const updateBasket = (items: BasketItem[]) => {
     setBasket(items)
     if (isAuthenticated) {
-      syncCartHelper(items)
+      setTimeout(() => {
+        syncCartHelper(items)
+      }, 400)
     }
   }
 
   const addToBasket = async (item: BasketItem) => {
     try {
       // update the context
-      const existingItem = basket.find(basketItem => basketItem.perfumeId === item.perfumeId)
+      const existingItem = basket.find(
+        basketItem => basketItem.perfumeId === item.perfumeId && basketItem.volume === item.volume
+      )
       if (existingItem) {
         const updatedItem = { ...existingItem, quantity: existingItem.quantity + item.quantity }
         const updatedBasket = basket.map(basketItem =>
@@ -60,19 +64,26 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  const removeFromBasket = async (id: string) => {
-    const item = basket.find(item => item.perfumeId === id)
+  const removeFromBasket = async (id: string, volume: number, quantity: number) => {
+    const item = basket.find(item => item.perfumeId === id && item.volume === volume)
     if (!item) return
-    const updatedBasket = basket.filter(item => item.perfumeId !== id)
+    if (item.quantity <= quantity) {
+      const updatedBasket = basket.filter(item => !(item.perfumeId === id && item.volume === volume))
+      updateBasket(updatedBasket)
+    } else {
+      const updatedItem = { ...item, quantity: item.quantity - quantity }
+      const updatedBasket = basket.map(basketItem =>
+        basketItem.perfumeId === id && basketItem.volume === volume ? updatedItem : basketItem
+      )
+      updateBasket(updatedBasket)
+    }
 
     if (isAuthenticated) {
-      await removeFromCartRequest({ perfumeId: id, volume: item?.volume, quantity: item?.quantity })
-      updateBasket(updatedBasket)
+      await removeFromCartRequest({ perfumeId: id, volume: volume, quantity: quantity })
     }
   }
 
   const syncCart = async () => {
-    console.log('FILTERED BASKET', basket)
     syncCartHelper(basket)
   }
 
@@ -107,8 +118,8 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   // #endregion
 
   // #region Getter Functions =============================================================
-  const getBasketProduct = (id: string) => {
-    return basket.find(item => item.perfumeId === id)
+  const getBasketProduct = (id: string, volume: number) => {
+    return basket.find(item => item.perfumeId === id && item.volume === volume)
   }
   // #endregion
 

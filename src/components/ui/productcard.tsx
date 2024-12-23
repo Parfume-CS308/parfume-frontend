@@ -1,61 +1,42 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import StarRating from './StarRating'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO'
 import useCart from '@/hooks/contexts/useCart'
 import { useNavigate } from 'react-router-dom'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog'
+import { Button } from './button'
 
 interface ProductCardProps {
   perfume: GetPerfumeDetailDTO
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
+  const [selectedVariant, setSelectedVariant] = React.useState(perfume.variants[0])
+  const [isVariantSelectionDialogOpen, setIsVariantSelectionDialogOpen] = React.useState(false)
   const { getBasketProduct, addToBasket, removeFromBasket } = useCart()
-  const basketProduct = getBasketProduct(perfume.id)
   const navigate = useNavigate()
-
-  const minVolumeByStock = perfume.variants.reduce((acc, variant) => {
-    if (variant.stock > 0) {
-      return Math.min(acc, variant.volume)
-    }
-    return acc
-  }, Number.MAX_SAFE_INTEGER)
 
   const totalStock = perfume.variants.reduce((acc, variant) => acc + variant.stock, 0)
   const isOutOfStock = totalStock === 0
   const isLastOneItem = totalStock === 1
 
-  const minVolume = isOutOfStock ? 0 : minVolumeByStock
-  const basePrice = perfume.variants.find(variant => variant.volume === minVolume)?.price
+  // #region Mount Functions ==============================================================
+  useEffect(() => {
+    setMinimumVariantWithStock()
+  }, [])
+
+  const setMinimumVariantWithStock = () => {
+    const variantsWithStock = perfume.variants.filter(variant => variant.stock > 0).sort((a, b) => a.volume - b.volume)
+
+    const basketVariant = perfume.variants.find(variant => getBasketProduct(perfume.id, variant.volume))
+    setSelectedVariant(basketVariant || (variantsWithStock.length > 0 ? variantsWithStock[0] : perfume.variants[0]))
+  }
+  // #endregion
 
   // #region Handler Functions ============================================================
 
   const handleProductCardClick = (id: string) => {
     navigate(`/perfume/${id}`)
-  }
-
-  const handleAddToBasketClick = () => {
-    if (!basePrice) return
-
-    addToBasket({
-      perfumeId: perfume.id,
-      perfumeName: perfume.name,
-      brand: perfume.brand,
-      volume: minVolume,
-      quantity: 1,
-      basePrice: basePrice
-    })
-  }
-
-  const handleRemoveFromBasketClick = () => {
-    removeFromBasket(perfume.id)
-  }
-
-  const handleBasketButtonClick = () => {
-    if (basketProduct) {
-      handleRemoveFromBasketClick()
-    } else {
-      handleAddToBasketClick()
-    }
   }
 
   // #endregion
@@ -75,10 +56,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-md text-sm z-10'>Last stock</div>
     )
   }
-
   const renderPerfumeImage = () => {
     return (
-      <div className='relative h-72'>
+      <div className='relative h-72 cursor-pointer' onClick={() => handleProductCardClick(perfume.id)}>
         <img src={perfume.assetUrl} alt={`${perfume.name}`} className='w-full h-full object-contain rounded-lg' />
         {/* <button
           className='absolute top-2 right-2 text-gray-500 hover:text-red-500'
@@ -118,7 +98,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       if (isOutOfStock) return null
       return (
         <div className='mt-2'>
-          <span className='text-gray-900'>${basePrice}</span>
+          <span className='text-gray-900'>${selectedVariant.price}</span>
         </div>
       )
     }
@@ -127,7 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='mt-4 space-y-2'>
         <div className='flex justify-between items-center'>
           <h3 className='text-lg font-semibold text-gray-700'>{perfume.name}</h3>
-          {!isOutOfStock && <p className='text-md font-semibold text-gray-700'>{minVolume}ml</p>}
+          {!isOutOfStock && <p className='text-md font-semibold text-gray-700'>{selectedVariant.volume}ml</p>}
         </div>
         {renderRating()}
         {renderPrice()}
@@ -136,48 +116,149 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   }
 
   const renderAddToBasketButton = () => {
-    const isInBasket = !!basketProduct
-
     return (
-      <button
-        onClick={e => {
-          e.stopPropagation()
-          handleBasketButtonClick()
-        }}
-        disabled={isOutOfStock}
-        className={`absolute bottom-2 right-2 p-2 rounded-full transition-colors ${
-          isOutOfStock
-            ? 'bg-gray-200 cursor-not-allowed'
-            : isInBasket
-            ? 'bg-green-100 text-green-600'
-            : 'bg-gray-100 hover:bg-gray-200'
-        }`}
-      >
-        {isInBasket ? (
-          <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
-          </svg>
-        ) : (
-          <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 4v16m8-8H4' />
-          </svg>
-        )}
-      </button>
+      <div className='mt-4'>
+        <Button
+          className={`w-full py-2 px-4 rounded-md transition-colors duration-200 `}
+          onClick={e => {
+            e.stopPropagation()
+            setIsVariantSelectionDialogOpen(true)
+          }}
+          disabled={isOutOfStock}
+        >
+          {'Add to Cart'}
+        </Button>
+      </div>
+    )
+  }
+
+  const renderAdjustBasketButtons = () => {
+    return (
+      <div className='flex justify-between'>
+        <div className='flex items-center'>
+          <Button
+            className='px-3 py-2 rounded-l-md border-r'
+            onClick={e => {
+              e.stopPropagation()
+              removeFromBasket(perfume.id, selectedVariant.volume, 1)
+            }}
+          >
+            -
+          </Button>
+          <div className='px-4 py-2 border-r flex items-center'>
+            {getBasketProduct(perfume.id, selectedVariant.volume)?.quantity || 0}
+          </div>
+          <Button
+            className='px-3 py-2 rounded-r-md'
+            onClick={e => {
+              e.stopPropagation()
+              const basketItem = getBasketProduct(perfume.id, selectedVariant.volume)
+              if (basketItem && basketItem.quantity < selectedVariant.stock) {
+                const item = {
+                  perfumeId: perfume.id,
+                  perfumeName: perfume.name,
+                  brand: perfume.brand,
+                  volume: selectedVariant.volume,
+                  quantity: +1,
+                  basePrice: selectedVariant.price
+                }
+                addToBasket(item)
+              }
+            }}
+            // @ts-ignore
+            disabled={getBasketProduct(perfume.id, selectedVariant.volume)?.quantity >= selectedVariant.stock}
+          >
+            +
+          </Button>
+        </div>
+        <Button
+          className='ml-2 px-3 py-2'
+          onClick={e => {
+            e.stopPropagation()
+            setIsVariantSelectionDialogOpen(true)
+          }}
+        >
+          Change
+        </Button>
+      </div>
+    )
+  }
+
+  const renderBasket = () => {
+    const basketItem = getBasketProduct(perfume.id, selectedVariant.volume)
+    const renderBasketButton = () => {
+      if (basketItem) {
+        return renderAdjustBasketButtons()
+      } else {
+        return renderAddToBasketButton()
+      }
+    }
+
+    return renderBasketButton()
+  }
+
+  const renderVariantSelectionDialog = () => {
+    return (
+      <Dialog open={isVariantSelectionDialogOpen} onOpenChange={e => setIsVariantSelectionDialogOpen(e)}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Select Variant</DialogTitle>
+            <DialogDescription>Choose your preferred volume size for {perfume.name}</DialogDescription>
+          </DialogHeader>
+          <div className='grid gap-4 py-4'>
+            {perfume.variants.map(variant => {
+              let usedStock = 0
+              const basketProduct = getBasketProduct(perfume.id, variant.volume)
+              if (basketProduct) {
+                usedStock = basketProduct.quantity
+              }
+              let isAvailable = variant.stock - usedStock !== 0
+              return (
+                <button
+                  onClick={e => {
+                    e.stopPropagation()
+
+                    if (isAvailable) {
+                      const item = {
+                        perfumeId: perfume.id,
+                        perfumeName: perfume.name,
+                        brand: perfume.brand,
+                        volume: variant.volume,
+                        quantity: 1,
+                        basePrice: variant.price
+                      }
+                      addToBasket(item)
+                    }
+                    setIsVariantSelectionDialogOpen(false)
+                    setSelectedVariant(variant)
+                  }}
+                  className={`flex justify-between items-center w-full p-4 border rounded-lg hover:bg-gray-50 ${
+                    isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-20'
+                  }`}
+                  disabled={!isAvailable}
+                >
+                  <span>{variant.volume}ml</span>
+                  <span>${variant.price}</span>
+                </button>
+              )
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     )
   }
 
   // #endregion
 
   return (
-    <div
-      onClick={() => handleProductCardClick(perfume.id)}
-      className='relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white'
-    >
+    <div className='relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white flex flex-col'>
       {renderOutOfStockBanner()}
       {renderLastOneItemBanner()}
       {renderPerfumeImage()}
       {renderPerfumeInformation()}
-      {renderAddToBasketButton()}
+      <div className='flex-1' />
+      {renderBasket()}
+      {renderVariantSelectionDialog()}
     </div>
   )
 }
