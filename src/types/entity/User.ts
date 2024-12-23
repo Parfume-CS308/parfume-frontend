@@ -16,6 +16,6 @@ export enum USER_GENDER {
 
 export enum USER_ROLE {
   CUSTOMER = 'customer',
-  SALES_MANAGER = 'sales_manager',
-  PRODUCT_MANAGER = 'product_manager'
+  SALES_MANAGER = 'sales-manager',
+  PRODUCT_MANAGER = 'product-manager'
 }

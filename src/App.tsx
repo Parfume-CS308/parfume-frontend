@@ -11,6 +11,7 @@ import OrdersPage from '@/pages/OrdersPage'
 const MainPage = lazy(() => import('./pages/MainPage'))
 const Authorize = lazy(() => import('./pages/Authorize'))
 const AppStore = lazy(() => import('./AppStore'))
+const AppAdmin = lazy(() => import('./AppAdmin'))
 const AboutPage = lazy(() => import('./pages/store/AboutPage'))
 const PerfumeDetailPage = lazy(() => import('./pages/PerfumeDetailPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
@@ -18,6 +19,10 @@ const ErrorPage = lazy(() => import('./pages/ErrorPage'))
 const AccountPage = lazy(() => import('./pages/AccountPage'))
 const CheckoutPage = lazy(() => import('./pages/store/CheckoutPage'))
 const ThankYouPage = lazy(() => import('./pages/store/ThankYouPage'))
+const AdminMainPage = lazy(() => import('./pages/admin/AdminMainPage'))
+const AdminReviewsPage = lazy(() => import('./pages/admin/Reviews'))
+const AdminOrdersPage = lazy(() => import('./pages/admin/OrdersPage'))
+const AdminProductsPage = lazy(() => import('./pages/admin/ProductsPage'))
 
 const queryClient = new QueryClient()
 
@@ -35,7 +40,6 @@ function App() {
     try {
       await me()
       syncCart()
-      console.log('FILTERED 2')
     } catch (error) {
       console.error('Error checking me', error)
     }
@@ -61,10 +65,19 @@ function App() {
 
     const productManagerRoutes = (
       <>
-        <Route path='/' element={<AppStore />} />
+        <Route path='/' element={<AppAdmin />}>
+          <Route index element={<AdminMainPage />} />
+          <Route path='products' element={<AdminProductsPage />} />
+          <Route path='reviews' element={<AdminReviewsPage />} />
+          <Route path='orders' element={<AdminOrdersPage />} />
+        </Route>
       </>
     )
-    const salesManagerRoutes = <></>
+    const salesManagerRoutes = (
+      <>
+        <Route path='/' element={<AppAdmin />} />
+      </>
+    )
 
     switch (user?.role) {
       case USER_ROLE.CUSTOMER:

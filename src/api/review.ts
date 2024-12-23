@@ -28,3 +28,18 @@ export const makeRating = async (perfumeId: string, body: { rating: number }) =>
   const response = await axios.post(`${ENDPOINT}/rating/${perfumeId}`, body)
   return response
 }
+
+export const getAllReviews = async () => {
+  const response = await axios.get(`${ENDPOINT}/all`)
+  return response
+}
+
+export const approveReview = async (reviewId: string) => {
+  const response = await axios.patch(`${ENDPOINT}/${reviewId}/approve`)
+  return response
+}
+
+export const rejectReview = async (reviewId: string) => {
+  const response = await axios.patch(`${ENDPOINT}/${reviewId}/reject`)
+  return response
+}

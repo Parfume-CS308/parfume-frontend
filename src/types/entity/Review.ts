@@ -6,3 +6,7 @@ export type Review = {
   createdAt: string
   approvedAt: string
 }
+
+export interface ReviewExtended extends Review {
+  perfumeName: string
+}

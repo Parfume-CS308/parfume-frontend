@@ -1,118 +1,91 @@
-import React, { useEffect, useState } from 'react'
-import { getOrdersRequest } from '@/api' // Adjust the import path as necessary
-import { Order } from '@/types/orderTypes' // Adjust the import path as necessary
-import { format } from 'date-fns'
+import { Button } from './components/ui/button'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { routes } from './constants/routes'
+import useAuth from './hooks/contexts/useAuth'
+import { LucideChevronDown, LucideShoppingCart } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from './components/ui/dropdown-menu'
+import useCart from './hooks/contexts/useCart'
 
-const AppAdmin: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
+const AppAdmin = () => {
+  // #region States and Variables =========================================================
+  const navigate = useNavigate()
+  const { isAuthenticated, user, logout } = useAuth()
+  // #endregion
 
-  const fetchOrders = async () => {
-    try {
-      setIsLoading(true)
-      const response = await getOrdersRequest()
-      setOrders(response.data.items || [])
-    } catch (error) {
-      console.error('Error fetching orders:', error)
-    } finally {
-      setIsLoading(false)
-    }
+  // #region Handler functions ============================================================
+  const handleSignInButtonClicked = () => {
+    navigate(routes.auth.pathname)
   }
 
-  const getStatusBadge = (status: Order['status']) => {
-    const statusStyles: { [key in Order['status']]: string } = {
-      PROCESSING: 'bg-blue-500 text-white',
-      SHIPPED: 'bg-yellow-500 text-white',
-      DELIVERED: 'bg-green-500 text-white',
-      CANCELLED: 'bg-red-500 text-white'
-    }
+  const handleLogoutButtonClick = () => {
+    logout()
+  }
 
+  const handleCartClick = () => {
+    navigate('/cart')
+  }
+
+  // #endregion
+
+  // #region Render functions =============================================================
+
+  const renderNavbar = () => {
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusStyles[status]}`}>
-        {status.toUpperCase()}
-      </span>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className='container mx-auto px-4 py-12 text-center'>
-        <div className='text-gray-500 text-lg font-medium'>Loading your orders...</div>
-      </div>
-    )
-  }
-
-  if (orders.length === 0) {
-    return (
-      <div className='container mx-auto px-4 py-12'>
-        <div className='max-w-md mx-auto text-center bg-white shadow-lg rounded-lg p-8'>
-          <h2 className='text-xl font-bold text-gray-800 mb-4'>No Orders Found</h2>
-          <p className='text-gray-500 mb-6'>You haven’t placed any orders yet. Start shopping now!</p>
-          <button
-            onClick={() => (window.location.href = '/')}
-            className='bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition'
-          >
-            Start Shopping
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className='container mx-auto px-4 py-12'>
-      <h1 className='text-3xl font-bold text-gray-800 mb-8'>Your Orders</h1>
-      <div className='space-y-6'>
-        {orders.map(order => (
-          <div key={order.orderId} className='bg-white shadow-lg rounded-lg overflow-hidden'>
-            {/* Order Header */}
-            <div className='border-b border-gray-200 p-6 flex justify-between items-center'>
-              <div>
-                <h2 className='text-lg font-semibold text-gray-800'>Order #{order.orderId.slice(-8)}</h2>
-                <p className='text-sm text-gray-500'>Placed on {format(new Date(order.createdAt), 'MMMM d, yyyy')}</p>
-              </div>
-              {getStatusBadge(order.status)}
-            </div>
-
-            {/* Order Items */}
-            <div className='divide-y divide-gray-200'>
-              {order.items.map((item, index) => (
-                <div key={index} className='flex items-center justify-between p-4'>
-                  <div>
-                    <p className='font-medium text-gray-800'>{item.perfumeName}</p>
-                    <p className='text-sm text-gray-500'>
-                      {item.volume}ml × {item.quantity}
-                    </p>
-                  </div>
-                  <div>
-                    <p className='font-semibold text-gray-800'>${(item.price * item.quantity).toFixed(2)}</p>
-                    <p className='text-sm text-gray-500'>${item.price} each</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Order Footer */}
-            <div className='p-6 bg-gray-50 flex justify-between items-center'>
-              <p className='text-sm text-gray-600'>
-                Total: <span className='font-semibold'>${order.totalAmount}</span>
-              </p>
-              {order.status === 'DELIVERED' && (
-                <button
-                  className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
-                  onClick={() => alert(`Refund request for order ${order.orderId} initiated.`)}
-                >
-                  Request Refund
-                </button>
-              )}
-            </div>
+      <nav className='px-8 py-4 flex flex-nowrap items-center bg-white'>
+        <div className='flex items-center flex-nowrap gap-4'>
+          <img src={`/assets/images/logo.jpg`} alt='logo' className='w-12 h-12' />
+          <div>
+            <p className='text-2xl h-5'>Perfume</p>
+            <p className='text-2xl'>Point</p>
           </div>
-        ))}
-      </div>
+        </div>
+        <div className='mx-auto flex items-center gap-8'>
+          <NavLink to='/' className={({ isActive }) => getLinkStyle(isActive)}>
+            Home
+          </NavLink>
+          <NavLink to='/products' className={({ isActive }) => getLinkStyle(isActive)}>
+            Products
+          </NavLink>
+          <NavLink to='/reviews' className={({ isActive }) => getLinkStyle(isActive)}>
+            Reviews
+          </NavLink>
+          <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
+            Orders
+          </NavLink>
+        </div>
+        <div className='mr-4'>
+          <div className='flex items-center gap-4 flex-nowrap'>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className='flex items-center flex-nowrap gap-1'>
+                  {user?.firstName} <LucideChevronDown size={16} className='relative top-[1px]' />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+  // #endregion
+  return (
+    <div className='bg-pageBackground w-screen h-screen'>
+      {renderNavbar()}
+      <Outlet />
     </div>
   )
 }
