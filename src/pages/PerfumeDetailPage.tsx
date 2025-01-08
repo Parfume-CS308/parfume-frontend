@@ -281,6 +281,14 @@ const PerfumeDetailPage: React.FC = () => {
       </div>
     )
   }
+
+  const renderStock = () => {
+    return (
+      <div className='flex items-center gap-4'>
+        <div className='text-gray-600'>Stock: {selectedVariant?.stock}</div>
+      </div>
+    )
+  }
   const renderRightContainer = () => {
     const inStock = (selectedVariant?.stock ?? 0) > 0
     return (
@@ -292,16 +300,15 @@ const PerfumeDetailPage: React.FC = () => {
             </div>
             {/* {renderFavoriteButton()} */}
           </div>
-
           {renderVariantSelector()}
           <p className='text-3xl font-bold text-gray-900 mt-2'>${selectedVariant?.price} </p>
-
           <div className='flex flex-wrap gap-2'>
             <span className='px-3 py-1 bg-primary rounded-full text-sm text-white'>{perfume?.gender}</span>
             {!inStock && <span className='px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm'>Out of Stock</span>}
           </div>
           <p className='text-gray-700'>{perfume?.description}</p>
           {renderBasket()}
+          {renderStock()}
         </div>
       </div>
     )

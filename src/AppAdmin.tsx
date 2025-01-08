@@ -20,7 +20,7 @@ const AppAdmin = () => {
   const { isAuthenticated, user, logout } = useAuth()
   // #endregion
 
-  // #region Handler functions ============================================================
+  // x#region Handler functions ============================================================
   const handleSignInButtonClicked = () => {
     navigate(routes.auth.pathname)
   }
