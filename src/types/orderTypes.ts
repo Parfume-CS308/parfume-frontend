@@ -14,8 +14,16 @@ export interface Order {
   items: OrderItem[]
   totalAmount: number
   appliedCampaigns: any[]
-  status: 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+  status: OrderStatus
   createdAt: string
+}
+
+export interface AdminOrder extends Order {
+  userName: string
+  shippingAddress: string
+  campaignDiscountAmount: number
+  invoiceNumber: string
+  invoiceUrl: string
 }
 
 export type MakeOrderRequest = {
@@ -28,4 +36,11 @@ export type MakeOrderRequest = {
   expiryDateMM: string
   expiryDateYY: string
   cvv: string
+}
+
+export enum OrderStatus {
+  PROCESSING = 'processing',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  SHIPPED = 'in-transit'
 }

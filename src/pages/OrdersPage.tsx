@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getOrdersRequest } from '@/api' // Adjust the import path as necessary
-import { Order } from '@/types/orderTypes' // Adjust the import path as necessary
+import { Order, OrderStatus } from '@/types/orderTypes' // Adjust the import path as necessary
 import { format } from 'date-fns'
 
 const OrdersPage: React.FC = () => {
@@ -25,10 +25,10 @@ const OrdersPage: React.FC = () => {
 
   const getStatusBadge = (status: Order['status']) => {
     const statusStyles: { [key in Order['status']]: string } = {
-      PROCESSING: 'bg-blue-500 text-white',
-      SHIPPED: 'bg-yellow-500 text-white',
-      DELIVERED: 'bg-green-500 text-white',
-      CANCELLED: 'bg-red-500 text-white'
+      processing: 'bg-blue-500 text-white',
+      'in-transit': 'bg-yellow-500 text-white',
+      delivered: 'bg-green-500 text-white',
+      cancelled: 'bg-red-500 text-white'
     }
 
     return (
@@ -101,7 +101,7 @@ const OrdersPage: React.FC = () => {
               <p className='text-sm text-gray-600'>
                 Total: <span className='font-semibold'>${order.totalAmount}</span>
               </p>
-              {order.status === 'DELIVERED' && (
+              {order.status === OrderStatus.DELIVERED && (
                 <button
                   className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
                   onClick={() => alert(`Refund request for order ${order.orderId} initiated.`)}

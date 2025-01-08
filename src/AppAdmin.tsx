@@ -10,27 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from './components/ui/dropdown-menu'
-import useCart from './hooks/contexts/useCart'
 
 const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
 
 const AppAdmin = () => {
   // #region States and Variables =========================================================
-  const navigate = useNavigate()
-  const { isAuthenticated, user, logout } = useAuth()
+  const { user, logout } = useAuth()
   // #endregion
 
-  // x#region Handler functions ============================================================
-  const handleSignInButtonClicked = () => {
-    navigate(routes.auth.pathname)
-  }
+  // #region Handler functions ============================================================
 
   const handleLogoutButtonClick = () => {
     logout()
-  }
-
-  const handleCartClick = () => {
-    navigate('/cart')
   }
 
   // #endregion
@@ -59,6 +50,9 @@ const AppAdmin = () => {
           </NavLink>
           <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
             Orders
+          </NavLink>
+          <NavLink to='/categories' className={({ isActive }) => getLinkStyle(isActive)}>
+            Product Categories
           </NavLink>
         </div>
         <div className='mr-4'>
