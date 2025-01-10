@@ -55,7 +55,6 @@ function App() {
       <>
         <Route path="/" element={<AppStore />}>
           <Route index element={<MainPage />} />
-          <Route path="about" element={<AboutPage />} />
           <Route path="perfume/:id" element={<PerfumeDetailPage />} />
           <Route path="account" element={<AccountPage />} />
           <Route path="/orders" element={<OrdersPage />} />
