@@ -60,9 +60,24 @@ const CartPage: React.FC = () => {
                 <div className="flex items-center gap-4 mt-2">
                   <p className="font-bold">${item.basePrice}</p>
                   <div className="text-sm text-gray-600 flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-4 h-4 text-gray-500"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6l1.34 11.34A2 2 0 007.32 19h9.36a2 2 0 001.98-1.66L20 6M9 10v4m6-4v4"
+                      />
+                    </svg>
                     <span className="font-semibold">Quantity:</span>
                     <span>{item.quantity}</span>
                   </div>
+
                   <button
                     onClick={() => removeFromBasket(item.perfumeId)}
                     className="text-red-500 hover:text-red-700 text-sm"
