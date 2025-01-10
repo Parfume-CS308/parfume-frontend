@@ -10,6 +10,12 @@ const AboutUsPage: React.FC = () => {
         perfumes that suit every personality and style, ensuring quality and
         authenticity in every product we offer.
       </p>
+      <h2 className="text-2xl font-bold mt-8 mb-4">Our Vision</h2>
+      <p className="text-gray-700 leading-7">
+        To be the leading global destination for discovering and celebrating the
+        art of perfumery, inspiring confidence and joy through unique and
+        memorable fragrances for every individual.
+      </p>
       <h2 className="text-2xl font-bold mt-8 mb-4">Our Mission</h2>
       <p className="text-gray-700 leading-7">
         To create a seamless shopping experience where everyone can find their
