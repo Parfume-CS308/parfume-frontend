@@ -8,11 +8,14 @@ type BasketItem = {
   brand: string
   volume: number
   quantity: number
-  basePrice: number
+  price: number
+  discountedPrice: number
 }
 
 export const CartContext = createContext({
   basket: [] as BasketItem[],
+  totalPrice: 0,
+  totalDiscountedPrice: 0,
   addToBasket: (item: BasketItem) => {},
   removeFromBasket: (id: string, volume: number, quantity: number) => {},
   getBasketProduct: (id: string, volume: number) => ({} as BasketItem | undefined),
@@ -22,6 +25,8 @@ export const CartContext = createContext({
 
 const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [basket, setBasket] = useState<BasketItem[]>([])
+  const [totalPrice, setTotalPrice] = useState(0)
+  const [totalDiscountedPrice, setTotalDiscountedPrice] = useState(0)
   const { isAuthenticated } = useAuth()
 
   // #region Setter Functions ===========================================================
@@ -90,6 +95,7 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   const syncCartHelper = async (actualBasket: BasketItem[]) => {
     const getBasketResponse = await getCartRequest()
     const syncItems = getBasketResponse.data.items.items
+
     const basketItemsNotInSync = actualBasket.filter(
       basketItem => !syncItems.some(syncItem => syncItem.perfumeId === basketItem.perfumeId)
     )
@@ -105,6 +111,8 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await syncCartRequest(body)
       setBasket(response.data.items.items)
+      setTotalPrice(response.data.items.totalPrice)
+      setTotalDiscountedPrice(response.data.items.totalDiscountedPrice)
     } catch (error) {
       console.error('Error syncing cart:', error)
     }
@@ -124,7 +132,18 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   // #endregion
 
   return (
-    <CartContext.Provider value={{ basket, addToBasket, removeFromBasket, getBasketProduct, syncCart, emptyCart }}>
+    <CartContext.Provider
+      value={{
+        basket,
+        addToBasket,
+        removeFromBasket,
+        getBasketProduct,
+        syncCart,
+        emptyCart,
+        totalDiscountedPrice,
+        totalPrice
+      }}
+    >
       {children}
     </CartContext.Provider>
   )

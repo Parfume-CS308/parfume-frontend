@@ -4,13 +4,15 @@ export interface CartItem {
   brand: string
   volume: number
   quantity: number
-  basePrice: number
+  price: number
+  discountedPrice: number
 }
 
 export interface Cart {
   id: string
   items: CartItem[]
   totalPrice: number
+  totalDiscountedPrice: number
 }
 
 export interface CartResponse {

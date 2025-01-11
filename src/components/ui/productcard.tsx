@@ -53,6 +53,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm z-10'>Out of Stock</div>
     )
   }
+
   const renderLastOneItemBanner = () => {
     if (!isLastOneItem) return null
 
@@ -60,11 +61,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-md text-sm z-10'>Last stock</div>
     )
   }
+
   const renderActiveDiscountBanner = () => {
     if (!perfume.activeDiscount) return null
 
     return (
-      <div className='absolute top-1 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-sm z-10'>Discount</div>
+      <div className='absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-sm z-10'>
+        {perfume.activeDiscount.rate}% Discount
+      </div>
     )
   }
 
@@ -75,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
         <img src={perfume.assetUrl} alt={`${perfume.name}`} className='w-full h-full object-contain rounded-lg' />
         {isAuthenticated && (
           <button
-            className={`absolute top-2 right-2 ${isInWishlist ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
+            className={`absolute top-3 right-0 ${isInWishlist ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
             onClick={e => {
               e.stopPropagation()
               if (isInWishlist) {
@@ -117,6 +121,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
     }
     const renderPrice = () => {
       if (isOutOfStock) return null
+      const hasDiscount = perfume.activeDiscount
+
+      if (hasDiscount) {
+        const discountedPrice = selectedVariant.price - selectedVariant.price * (perfume.activeDiscount.rate / 100)
+        return (
+          <div className='mt-2'>
+            <span className='text-gray-400 line-through'>${selectedVariant.price}</span>
+            <span className='text-red-500'> ${discountedPrice.toFixed(2)}</span>
+          </div>
+        )
+      }
+
       return (
         <div className='mt-2'>
           <span className='text-gray-900'>${selectedVariant.price}</span>
@@ -181,7 +197,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
                   brand: perfume.brand,
                   volume: selectedVariant.volume,
                   quantity: +1,
-                  basePrice: selectedVariant.price
+                  price: selectedVariant.price,
+                  discountedPrice: perfume.activeDiscount
+                    ? selectedVariant.price - selectedVariant.price * (perfume.activeDiscount.rate / 100)
+                    : selectedVariant.price
                 }
                 addToBasket(item)
               }
@@ -219,6 +238,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   }
 
   const renderVariantSelectionDialog = () => {
+    const hasDiscount = perfume.activeDiscount
     return (
       <Dialog open={isVariantSelectionDialogOpen} onOpenChange={e => setIsVariantSelectionDialogOpen(e)}>
         <DialogContent className='sm:max-w-[425px]'>
@@ -246,7 +266,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
                         brand: perfume.brand,
                         volume: variant.volume,
                         quantity: 1,
-                        basePrice: variant.price
+                        price: variant.price,
+                        discountedPrice: hasDiscount
+                          ? variant.price - variant.price * (perfume.activeDiscount.rate / 100)
+                          : variant.price
                       }
                       addToBasket(item)
                     }
@@ -259,7 +282,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
                   disabled={!isAvailable}
                 >
                   <span>{variant.volume}ml</span>
-                  <span>${variant.price}</span>
+                  <span>
+                    {hasDiscount
+                      ? `$${(variant.price - variant.price * (perfume.activeDiscount.rate / 100)).toFixed(2)}`
+                      : `$${variant.price}`}
+                  </span>
                 </button>
               )
             })}

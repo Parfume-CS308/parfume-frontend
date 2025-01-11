@@ -26,7 +26,7 @@ const checkoutSchema = z.object({
 
 const CheckoutPage: React.FC = () => {
   const { isAuthenticated } = useAuth()
-  const { basket, emptyCart } = useCart()
+  const { basket, emptyCart, totalDiscountedPrice, totalPrice } = useCart()
   const { addToast } = useToast()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
@@ -108,9 +108,6 @@ const CheckoutPage: React.FC = () => {
   // #endregion
 
   // #region Helper Functions =============================================================
-  const calculateTotal = () => {
-    return basket.reduce((total, item) => total + item.basePrice * item.quantity, 0)
-  }
 
   // #endregion
 
@@ -134,8 +131,29 @@ const CheckoutPage: React.FC = () => {
                 <p className='text-sm text-gray-500'>{item.brand}</p>
                 <p className='text-sm text-gray-500'>{item.volume}ml</p>
                 <div className='flex items-center gap-4 mt-2'>
-                  <p className='font-bold'>${item.basePrice}</p>
-                  <div className='text-sm text-gray-600'>Quantity: {item.quantity}</div>
+                  <span className='font-semibold'>Price:</span>
+                  <span>${(item.discountedPrice * item.quantity).toFixed(2)}</span>
+                  {item.discountedPrice !== item.price && (
+                    <span className='text-gray-500 line-through'>${(item.price * item.quantity).toFixed(2)}</span>
+                  )}
+                  <div className='text-sm text-gray-600 flex items-center gap-2'>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      strokeWidth={2}
+                      stroke='currentColor'
+                      className='w-4 h-4 text-gray-500'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        d='M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6l1.34 11.34A2 2 0 007.32 19h9.36a2 2 0 001.98-1.66L20 6M9 10v4m6-4v4'
+                      />
+                    </svg>
+                    <span className='font-semibold'>Quantity:</span>
+                    <span>{item.quantity}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -148,7 +166,12 @@ const CheckoutPage: React.FC = () => {
           <div className='space-y-2 mb-4'>
             <div className='flex justify-between font-bold'>
               <span>Total</span>
-              <span>${calculateTotal().toFixed(2)}</span>
+              <div>
+                <span>${totalDiscountedPrice.toFixed(2)}</span>{' '}
+                {totalDiscountedPrice !== totalPrice && (
+                  <span className='text-gray-500 line-through'>${totalPrice.toFixed(2)}</span>
+                )}
+              </div>
             </div>
           </div>
           <Form {...checkoutForm} key={'checkoutForm'}>

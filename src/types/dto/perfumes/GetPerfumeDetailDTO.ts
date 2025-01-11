@@ -3,5 +3,7 @@ import { Perfume } from '@/types/entity/Perfume'
 export interface GetPerfumeDetailDTO extends Perfume {
   averageRating: number
   reviewCount: number
-  activeDiscount: boolean
+  activeDiscount: {
+    rate: number
+  }
 }

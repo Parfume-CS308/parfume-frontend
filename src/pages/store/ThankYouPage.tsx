@@ -15,9 +15,10 @@ interface propState {
       volume: number
       quantity: number
       price: number
+      discountedPrice: number
     }[]
     totalAmount: number
-    campaignDiscountAmount: number
+    discountAmount: number
   }
 }
 
@@ -28,7 +29,7 @@ const ThankYouPage = (props: Props) => {
   const { user } = useAuth()
   // get the order id from history state
   const { orderDetails: order } = location.state as propState
-  console.log('FILTERED ORDER', order)
+
   const renderInvoice = () => {
     if (!order) return null
     return (
@@ -78,11 +79,10 @@ const ThankYouPage = (props: Props) => {
               {order.items.map(item => (
                 <tr>
                   <td>{item.perfumeName}</td>
-
                   <td>{item.volume}ml</td>
                   <td>{item.quantity}</td>
-                  <td>${item.price.toFixed(2)}</td>
-                  <td>${(item.price * item.quantity).toFixed(2)}</td>
+                  <td>${item.discountedPrice.toFixed(2)}</td>
+                  <td>${(item.discountedPrice * item.quantity).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -90,12 +90,16 @@ const ThankYouPage = (props: Props) => {
 
           <div className='totals'>
             <div>
-              <strong>Subtotal:</strong> ${(order.totalAmount + order.campaignDiscountAmount).toFixed(2)}
+              <strong>Subtotal:</strong> ${(order.totalAmount + order.discountAmount).toFixed(2)}
             </div>
 
-            {order.campaignDiscountAmount > 0
-              ? `<div><strong>Campaign Discount:</strong> -$${order.campaignDiscountAmount.toFixed(2)}</div>`
-              : ''}
+            {order.discountAmount > 0 ? (
+              <div>
+                <strong>Campaign Discount:</strong> -${order.discountAmount.toFixed(2)}
+              </div>
+            ) : (
+              ''
+            )}
             <div className='grand-total'>
               <strong>Total Amount:</strong> ${order.totalAmount.toFixed(2)}
             </div>
