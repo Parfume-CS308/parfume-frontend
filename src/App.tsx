@@ -26,6 +26,7 @@ const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage'))
 const AboutUsPage = lazy(() => import('./pages/AboutUsPage'))
 const RefundsPage = lazy(() => import('./pages/store/RefundsPage'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
+const WishlistPage = lazy(() => import('./pages/WishlistPage'))
 
 const queryClient = new QueryClient()
 
