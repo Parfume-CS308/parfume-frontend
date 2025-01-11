@@ -5,6 +5,8 @@ import useCart from '@/hooks/contexts/useCart'
 import { useNavigate } from 'react-router-dom'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog'
 import { Button } from './button'
+import useAuth from '@/hooks/contexts/useAuth'
+import useWishlist from '@/hooks/contexts/useWishlist'
 
 interface ProductCardProps {
   perfume: GetPerfumeDetailDTO
@@ -14,6 +16,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
   const [selectedVariant, setSelectedVariant] = React.useState(perfume.variants[0])
   const [isVariantSelectionDialogOpen, setIsVariantSelectionDialogOpen] = React.useState(false)
   const { getBasketProduct, addToBasket, removeFromBasket } = useCart()
+  const { isAuthenticated } = useAuth()
+  const wishlistContext = useWishlist()
   const navigate = useNavigate()
 
   const totalStock = perfume.variants.reduce((acc, variant) => acc + variant.stock, 0)
@@ -57,36 +61,45 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
     )
   }
   const renderPerfumeImage = () => {
+    const isInWishlist = wishlistContext?.wishlist.some(item => item.id === perfume.id)
     return (
       <div className='relative h-72 cursor-pointer' onClick={() => handleProductCardClick(perfume.id)}>
         <img src={perfume.assetUrl} alt={`${perfume.name}`} className='w-full h-full object-contain rounded-lg' />
-        {/* <button
-          className='absolute top-2 right-2 text-gray-500 hover:text-red-500'
-          onClick={e => {
-            e.stopPropagation()
-          }}
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-            className='w-6 h-6'
+        {isAuthenticated && (
+          <button
+            className={`absolute top-2 right-2 ${isInWishlist ? 'text-red-500' : 'text-gray-500'} hover:text-red-500`}
+            onClick={e => {
+              e.stopPropagation()
+              if (isInWishlist) {
+                wishlistContext?.removeFromWishlist(perfume.id)
+              } else {
+                wishlistContext?.addToWishlist(perfume.id)
+              }
+            }}
           >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              d='M4.318 6.318a4.5 4.5 0 016.364 0L12 7.414l1.318-1.096a4.5 4.5 0 016.364 6.364l-7.318 7.318a.75.75 0 01-1.06 0l-7.318-7.318a4.5 4.5 0 010-6.364z'
-            />
-          </svg>
-        </button> */}
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+              className='w-6 h-6'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M4.318 6.318a4.5 4.5 0 016.364 0L12 7.414l1.318-1.096a4.5 4.5 0 016.364 6.364l-7.318 7.318a.75.75 0 01-1.06 0l-7.318-7.318a4.5 4.5 0 010-6.364z'
+              />
+            </svg>
+          </button>
+        )}
       </div>
     )
   }
 
   const renderPerfumeInformation = () => {
     const renderRating = () => {
+      if (!perfume?.reviewCount || !perfume?.averageRating) return null
       return (
         <div className='flex items-center gap-2'>
           <StarRating rating={perfume.averageRating} size='sm' />
