@@ -74,9 +74,11 @@ const Reviews = (props: Props) => {
     )
   }
   return (
-    <div className='flex flex-col gap-4 p-8'>
-      <h1 className='text-3xl font-bold'>Reviews</h1>
-      {loading ? <p>Loading...</p> : reviews.map(review => renderReview(review))}
+    <div className='flex justify-center '>
+      <div className='flex flex-col gap-4 p-8 w-full  max-w-[1440px] mt-4'>
+        <h1 className='text-3xl font-bold'>Reviews</h1>
+        {loading ? <p>Loading...</p> : reviews.map(review => renderReview(review))}
+      </div>
     </div>
   )
 }

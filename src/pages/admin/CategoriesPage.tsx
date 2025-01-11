@@ -60,7 +60,7 @@ const CategoriesPage = () => {
     <div className='flex justify-center'>
       <div className='p-4 mt-8 max-w-[1440px] w-full'>
         <div className='flex items-center justify-between mb-8'>
-          <h1 className='text-2xl font-bold mb-4'>Categories</h1>
+          <h1 className='text-3xl font-bold mb-4'>Categories</h1>
           <Button onClick={() => setIsDialogOpen(true)} className='mb-4'>
             Add Category
           </Button>

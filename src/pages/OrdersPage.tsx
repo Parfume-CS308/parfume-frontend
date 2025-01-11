@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+  DialogFooter
+} from '@/components/ui/dialog' // Import the Dialog components
 import { getOrdersRequest } from '@/api' // Adjust the import path as necessary
 import { Order, OrderStatus } from '@/types/orderTypes' // Adjust the import path as necessary
 import { format } from 'date-fns'
+import { cn } from '@/lib/utils' // Ensure you have a utility for class names
+import { makeRefundRequest } from '@/api/order'
 
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [filterStatus, setFilterStatus] = useState<'all' | 'processing' | 'in-transit' | 'delivered' | 'cancelled'>(
+    'all'
+  )
+  const [isModalOpen, setIsModalOpen] = useState(false) // State for modal visibility
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null) // State for the selected order
 
   useEffect(() => {
     fetchOrders()
@@ -38,6 +54,45 @@ const OrdersPage: React.FC = () => {
     )
   }
 
+  const handleRequestRefund = (order: Order) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true) // Open the modal
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedOrder(null) // Reset selected order
+  }
+
+  const handleRefundSubmit = async () => {
+    if (!selectedOrder) return // Ensure there is a selected order
+
+    // Collect selected items for refund
+    const selectedItems = selectedOrder.items.filter((item, index) => {
+      const checkbox = document.getElementById(`refund-${index}`) as HTMLInputElement
+      return checkbox?.checked
+    })
+
+    try {
+      const body = {
+        items: selectedItems.map(item => ({
+          perfumeId: item.perfumeId,
+          volume: item.volume,
+          quantity: item.quantity
+        }))
+      }
+
+      const response = makeRefundRequest(selectedOrder.orderId, body)
+    } catch (error) {
+      console.error('Error requesting refund:', error)
+      alert('There was an error processing your refund request. Please try again.')
+    } finally {
+      closeModal() // Close the modal after processing
+    }
+  }
+
+  const filteredOrders = filterStatus === 'all' ? orders : orders.filter(order => order.status === filterStatus)
+
   if (isLoading) {
     return (
       <div className='container mx-auto px-4 py-12 text-center'>
@@ -65,9 +120,26 @@ const OrdersPage: React.FC = () => {
 
   return (
     <div className='container mx-auto px-4 py-12'>
-      <h1 className='text-3xl font-bold text-gray-800 mb-8'>Your Orders</h1>
+      <h1 className='text-3xl font-bold text-gray-800 mb-8'>Orders</h1>
+
+      {/* Filter by Status */}
+      <div className='mb-4'>
+        <label className='mr-2'>Filter by Status:</label>
+        <select
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value as any)}
+          className='border rounded p-2'
+        >
+          <option value='all'>All</option>
+          <option value='processing'>Processing</option>
+          <option value='in-transit'>In Transit</option>
+          <option value='delivered'>Delivered</option>
+          <option value='cancelled'>Cancelled</option>
+        </select>
+      </div>
+
       <div className='space-y-6'>
-        {orders.map(order => (
+        {filteredOrders.map(order => (
           <div key={order.orderId} className='bg-white shadow-lg rounded-lg overflow-hidden'>
             {/* Order Header */}
             <div className='border-b border-gray-200 p-6 flex justify-between items-center'>
@@ -104,7 +176,7 @@ const OrdersPage: React.FC = () => {
               {order.status === OrderStatus.DELIVERED && (
                 <button
                   className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
-                  onClick={() => alert(`Refund request for order ${order.orderId} initiated.`)}
+                  onClick={() => handleRequestRefund(order)} // Open modal with selected order
                 >
                   Request Refund
                 </button>
@@ -113,6 +185,34 @@ const OrdersPage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Refund Dialog */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Refund for Order #{selectedOrder?.orderId.slice(-8)}</DialogTitle>
+            <DialogDescription>Select the perfumes to refund:</DialogDescription>
+          </DialogHeader>
+          <div className='mb-4'>
+            {selectedOrder?.items.map((item, index) => (
+              <div key={index} className='flex items-center'>
+                <input type='checkbox' id={`refund-${index}`} className='mr-2' />
+                <label htmlFor={`refund-${index}`}>
+                  {item.perfumeName} - ${item.price} each
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <button onClick={handleRefundSubmit} className='bg-blue-500 text-white px-4 py-2 rounded mr-2'>
+              Submit Refund
+            </button>
+            <DialogClose asChild>
+              <button className='bg-gray-300 text-gray-800 px-4 py-2 rounded'>Cancel</button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
