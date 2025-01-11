@@ -28,6 +28,7 @@ const AdminOrdersPage = lazy(() => import("./pages/admin/OrdersPage"));
 const AdminProductsPage = lazy(() => import("./pages/admin/ProductsPage"));
 const CategoriesPage = lazy(() => import("./pages/admin/CategoriesPage"));
 const AboutUsPage = lazy(() => import("./pages/AboutUsPage"));
+const WishlistPage = lazy(() => import("./pages/WishlistPage"));
 
 const queryClient = new QueryClient();
 
