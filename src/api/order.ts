@@ -51,6 +51,16 @@ const getAllRefundRequests = async (): Promise<AxiosResponse> => {
   return response
 }
 
+const approveRefundRequest = async (refundRequestId: string): Promise<AxiosResponse> => {
+  const response = await axios.post<AxiosResponse>(`${ENDPOINT}/refundRequests/${refundRequestId}/approve`)
+  return response
+}
+
+const rejectRefundRequest = async (refundRequestId: string): Promise<AxiosResponse> => {
+  const response = await axios.post<AxiosResponse>(`${ENDPOINT}/refundRequests/${refundRequestId}/reject`)
+  return response
+}
+
 export {
   makeOrder,
   getOrdersRequest,
@@ -58,5 +68,7 @@ export {
   updateOrderStatus,
   makeRefundRequest,
   getRefundRequests,
-  getAllRefundRequests
+  getAllRefundRequests,
+  approveRefundRequest,
+  rejectRefundRequest
 }

@@ -9,6 +9,9 @@ export type Refund = {
   refundRequestId: string
   status: RefundStatuses
   totalRefundAmount: number
+  userName: string
+  userId: string
+  userEmail: string
 }
 
 export enum RefundStatuses {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { getAllRefundRequests } from '@/api/order'
 import { Refund, RefundStatuses } from '@/types/entity/Refund'
+import { approveRefundRequestRequest, rejectRefundRequestRequest } from '@/api'
 
 const RefundRequests: React.FC = () => {
   const [refundRequests, setRefundRequests] = useState<Refund[]>([])
@@ -26,10 +27,19 @@ const RefundRequests: React.FC = () => {
 
   const handleApproveRefund = async (requestId: string) => {
     try {
-      //   await updateRefundStatusRequest(requestId, RefundStatus.APPROVED)
+      await approveRefundRequestRequest(requestId)
       fetchRefundRequests()
     } catch (error) {
       console.error('Error approving refund:', error)
+    }
+  }
+
+  const handleRejectRefund = async (requestId: string) => {
+    try {
+      await rejectRefundRequestRequest(requestId)
+      fetchRefundRequests()
+    } catch (error) {
+      console.error('Error rejecting refund:', error)
     }
   }
 
@@ -84,34 +94,59 @@ const RefundRequests: React.FC = () => {
                 <p className='text-sm text-gray-500'>
                   Requested on {format(new Date(request.createdAt), 'MMMM d, yyyy')}
                 </p>
-                {/* <p className='text-sm text-gray-500'>User: {request.}</p>
-                <p className='text-sm text-gray-500'>Reason: {request.reason}</p> */}
+                <p className='text-sm text-gray-500'>User: {request.userName}</p>
               </div>
-              {/* <span
+              <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  request.status === 'pending'
+                  request.status === RefundStatuses.PENDING
                     ? 'bg-yellow-500 text-white'
-                    : request.status === 'approved'
+                    : request.status === RefundStatuses.APPROVED
                     ? 'bg-green-500 text-white'
                     : 'bg-red-500 text-white'
                 }`}
               >
                 {request.status.toUpperCase()}
-              </span> */}
+              </span>
+            </div>
+
+            {/* Refunded Items */}
+            <div className='p-6 bg-gray-50'>
+              <h3 className='text-lg font-semibold text-gray-800 mb-4'>Refunded Items</h3>
+              <div className='divide-y divide-gray-200'>
+                {request.items.map((item, index) => (
+                  <div key={index} className='flex items-center justify-between p-4'>
+                    <div>
+                      <p className='font-medium text-gray-800'>{item.perfumeName}</p>
+                      <p className='text-sm text-gray-500'>Quantity: {item.quantity}</p>
+                    </div>
+                    <div>
+                      <p className='font-semibold text-gray-800'>${(item.refundAmount * item.quantity).toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Request Footer */}
             <div className='p-6 bg-gray-50 flex justify-between items-center'>
               <p className='text-sm text-gray-600'>
-                {/* Amount: <span className='font-semibold'>${request.amount}</span> */}
+                Total Amount: <span className='font-semibold'>${request.totalRefundAmount}</span>
               </p>
               {request.status === RefundStatuses.PENDING && (
-                <button
-                  className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition'
-                  //   onClick={() => handleApproveRefund(request.requestId)}
-                >
-                  Approve
-                </button>
+                <div className='flex items-center gap-4'>
+                  <button
+                    className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition'
+                    onClick={() => handleRejectRefund(request.refundRequestId)}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition'
+                    onClick={() => handleApproveRefund(request.refundRequestId)}
+                  >
+                    Approve
+                  </button>
+                </div>
               )}
             </div>
           </div>
