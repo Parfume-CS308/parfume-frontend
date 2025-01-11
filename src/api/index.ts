@@ -34,3 +34,7 @@ export { getRefundRequests as getRefundRequestsRequest } from './order'
 export { getAllRefundRequests as getAllRefundRequestsRequest } from './order'
 export { approveRefundRequest as approveRefundRequestRequest } from './order'
 export { rejectRefundRequest as rejectRefundRequestRequest } from './order'
+
+export { getDiscounts as getDiscountsRequest } from './discount'
+export { createDiscount as createDiscountRequest } from './discount'
+export { deleteDiscount as deleteDiscountRequest } from './discount'

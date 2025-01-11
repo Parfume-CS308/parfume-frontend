@@ -11,7 +11,6 @@ const MainPage = lazy(() => import('./pages/MainPage'))
 const Authorize = lazy(() => import('./pages/Authorize'))
 const AppStore = lazy(() => import('./AppStore'))
 const AppAdmin = lazy(() => import('./AppAdmin'))
-const AboutPage = lazy(() => import('./pages/store/AboutPage'))
 const PerfumeDetailPage = lazy(() => import('./pages/PerfumeDetailPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
 const ErrorPage = lazy(() => import('./pages/ErrorPage'))
@@ -28,6 +27,7 @@ const RefundsPage = lazy(() => import('./pages/store/RefundsPage'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const WishlistPage = lazy(() => import('./pages/WishlistPage'))
 const RefundRequestsAdminPage = lazy(() => import('./pages/admin/RefundRequests'))
+const DiscountsPage = lazy(() => import('./pages/admin/DiscountsPage'))
 
 const queryClient = new QueryClient()
 
@@ -88,6 +88,7 @@ function App() {
           <Route index element={<AdminMainPage />} />
           <Route path='orders' element={<AdminOrdersPage />} />
           <Route path='refunds' element={<RefundRequestsAdminPage />} />
+          <Route path='discounts' element={<DiscountsPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
       </>

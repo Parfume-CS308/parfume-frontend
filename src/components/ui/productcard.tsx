@@ -60,6 +60,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
       <div className='absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-md text-sm z-10'>Last stock</div>
     )
   }
+  const renderActiveDiscountBanner = () => {
+    if (!perfume.activeDiscount) return null
+
+    return (
+      <div className='absolute top-1 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-sm z-10'>Discount</div>
+    )
+  }
+
   const renderPerfumeImage = () => {
     const isInWishlist = wishlistContext?.wishlist.some(item => item.id === perfume.id)
     return (
@@ -267,6 +275,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
     <div className='relative border rounded-lg p-6 shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white flex flex-col'>
       {renderOutOfStockBanner()}
       {renderLastOneItemBanner()}
+      {renderActiveDiscountBanner()}
       {renderPerfumeImage()}
       {renderPerfumeInformation()}
       <div className='flex-1' />

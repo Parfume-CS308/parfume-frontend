@@ -63,6 +63,9 @@ const AppAdmin = () => {
               <NavLink to='/refunds' className={({ isActive }) => getLinkStyle(isActive)}>
                 Refunds
               </NavLink>
+              <NavLink to='/discounts' className={({ isActive }) => getLinkStyle(isActive)}>
+                Discounts
+              </NavLink>
             </>
           )}
         </div>
