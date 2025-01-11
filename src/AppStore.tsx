@@ -83,6 +83,7 @@ const AppInner = () => {
                   <DropdownMenuItem>Account</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/orders')}>Orders</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/refunds')}>Returns</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/wishlist')}>Wishlist</DropdownMenuItem>
 
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className='text-red-600' onClick={handleLogoutButtonClick}>

@@ -27,6 +27,7 @@ const AboutUsPage = lazy(() => import('./pages/AboutUsPage'))
 const RefundsPage = lazy(() => import('./pages/store/RefundsPage'))
 const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const WishlistPage = lazy(() => import('./pages/WishlistPage'))
+const RefundRequestsAdminPage = lazy(() => import('./pages/admin/RefundRequests'))
 
 const queryClient = new QueryClient()
 
@@ -56,12 +57,13 @@ function App() {
           <Route index element={<MainPage />} />
           <Route path='perfume/:id' element={<PerfumeDetailPage />} />
           <Route path='account' element={<AccountPage />} />
-          <Route path='/orders' element={<OrdersPage />} />
-          <Route path='/refunds' element={<RefundsPage />} />
+          <Route path='orders' element={<OrdersPage />} />
+          <Route path='refunds' element={<RefundsPage />} />
           <Route path='about-us' element={<AboutUsPage />} />
           <Route path='cart' element={<CartPage />} />
           <Route path='checkout' element={<CheckoutPage />} />
           <Route path='thank-you' element={<ThankYouPage />} />
+          <Route path='wishlist' element={<WishlistPage />} />
           <Route path='*' element={<ErrorPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
@@ -77,11 +79,17 @@ function App() {
           <Route path='orders' element={<AdminOrdersPage />} />
           <Route path='categories' element={<CategoriesPage />} />
         </Route>
+        <Route path='/auth' element={<Authorize />} />
       </>
     )
     const salesManagerRoutes = (
       <>
-        <Route path='/' element={<AppAdmin />} />
+        <Route path='/' element={<AppAdmin />}>
+          <Route index element={<AdminMainPage />} />
+          <Route path='orders' element={<AdminOrdersPage />} />
+          <Route path='refunds' element={<RefundRequestsAdminPage />} />
+        </Route>
+        <Route path='/auth' element={<Authorize />} />
       </>
     )
 

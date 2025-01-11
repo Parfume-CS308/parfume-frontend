@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from './components/ui/dropdown-menu'
+import { USER_ROLE } from './types/entity/User'
 
 const getLinkStyle = (isActive: boolean): string => (isActive ? 'text-navLinkActive' : 'text-navLinkInactive')
 
@@ -42,18 +43,28 @@ const AppAdmin = () => {
           <NavLink to='/' className={({ isActive }) => getLinkStyle(isActive)}>
             Home
           </NavLink>
-          <NavLink to='/products' className={({ isActive }) => getLinkStyle(isActive)}>
-            Products
-          </NavLink>
-          <NavLink to='/reviews' className={({ isActive }) => getLinkStyle(isActive)}>
-            Reviews
-          </NavLink>
-          <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
-            Orders
-          </NavLink>
-          <NavLink to='/categories' className={({ isActive }) => getLinkStyle(isActive)}>
-            Product Categories
-          </NavLink>
+          {user?.role === USER_ROLE.PRODUCT_MANAGER ? (
+            <>
+              <NavLink to='/products' className={({ isActive }) => getLinkStyle(isActive)}>
+                Products
+              </NavLink>
+              <NavLink to='/reviews' className={({ isActive }) => getLinkStyle(isActive)}>
+                Reviews
+              </NavLink>
+              <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
+                Orders
+              </NavLink>
+              <NavLink to='/categories' className={({ isActive }) => getLinkStyle(isActive)}>
+                Product Categories
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to='/refunds' className={({ isActive }) => getLinkStyle(isActive)}>
+                Refunds
+              </NavLink>
+            </>
+          )}
         </div>
         <div className='mr-4'>
           <div className='flex items-center gap-4 flex-nowrap'>

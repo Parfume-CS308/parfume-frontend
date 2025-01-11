@@ -11,8 +11,8 @@ import {
 import { getOrdersRequest } from '@/api' // Adjust the import path as necessary
 import { Order, OrderStatus } from '@/types/orderTypes' // Adjust the import path as necessary
 import { format } from 'date-fns'
-import { cn } from '@/lib/utils' // Ensure you have a utility for class names
 import { makeRefundRequest } from '@/api/order'
+import { differenceInSeconds } from 'date-fns'
 
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
@@ -173,14 +173,15 @@ const OrdersPage: React.FC = () => {
               <p className='text-sm text-gray-600'>
                 Total: <span className='font-semibold'>${order.totalAmount}</span>
               </p>
-              {order.status === OrderStatus.DELIVERED && (
-                <button
-                  className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
-                  onClick={() => handleRequestRefund(order)} // Open modal with selected order
-                >
-                  Request Refund
-                </button>
-              )}
+              {order.status === OrderStatus.DELIVERED &&
+                differenceInSeconds(new Date(), new Date(order.createdAt)) <= 2592000 && (
+                  <button
+                    className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
+                    onClick={() => handleRequestRefund(order)} // Open modal with selected order
+                  >
+                    Request Refund
+                  </button>
+                )}
             </div>
           </div>
         ))}
