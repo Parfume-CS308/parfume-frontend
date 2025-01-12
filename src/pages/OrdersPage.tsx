@@ -93,7 +93,7 @@ const OrdersPage: React.FC = () => {
 
   const handleCancelOrder = async (order: Order) => {
     try {
-      const response = await updateOrderStatusRequest(order.orderId, OrderStatus.canceled)
+      const response = await updateOrderStatusRequest(order.orderId, OrderStatus.CANCELLED)
     } catch (error) {
       console.error('Error cancelling order:', error)
       alert('There was an error cancelling your order. Please try again.')

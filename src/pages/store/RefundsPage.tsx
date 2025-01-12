@@ -93,7 +93,7 @@ const RefundsPage: React.FC = () => {
                 <div key={index} className='flex items-center justify-between p-4'>
                   <div>
                     <p className='font-medium text-gray-800'>{item.perfumeName}</p>
-                    <p className='text-sm text-gray-500'>TODO: VOLUME ml × {item.quantity}</p>
+                    <p className='text-sm text-gray-500'>Quantity: {item.quantity}</p>
                   </div>
                   <div>
                     <p className='text-sm text-gray-500'>${item.refundAmount} each</p>
