@@ -4,32 +4,34 @@ import { Users, Star, Heart, Shield, Mail, MapPin, Phone } from "lucide-react";
 const AboutUsPage = () => {
   const teamMembers = [
     {
-      name: "Sarah Johnson",
-      role: "Lead Perfume Curator",
-      description: "Expert in luxury and niche fragrances with 10+ years of experience"
+      name: "Batuhan Işıldak",
+      role: "Full Stack Developer",
+      description: "Lead developer focused on building robust and scalable solutions"
     },
     {
-      name: "Michael Chen",
-      role: "Customer Experience Manager",
-      description: "Dedicated to creating exceptional shopping experiences"
+      name: "Deren Doğan",
+      role: "Backend Developer",
+      description: "Specializes in creating intuitive and responsive user interfaces"
     },
     {
-      name: "Emma Davis",
-      role: "Fragrance Expert",
-      description: "Specialized in personalized fragrance consultations"
-    }
-  ];
-
-  const testimonials = [
-    {
-      text: "Perfume Store has an amazing selection and their customer service is top-notch. I found my signature scent here and couldn't be happier!",
-      author: "Jane D.",
-      role: "Verified Customer"
+      name: "Eren Altın",
+      role: "Frontend Developer",
+      description: "Expert in database design and server-side architecture"
     },
     {
-      text: "The expertise and attention to detail are unmatched. They helped me find the perfect fragrance for my wedding day.",
-      author: "Michael R.",
-      role: "Verified Customer"
+      name: "Ataberk Çakır",
+      role: "UI/UX Designer",
+      description: "Creating beautiful and user-friendly design experiences"
+    },
+    {
+      name: "Serra Bayraktar",
+      role: "Product Manager",
+      description: "Driving product strategy and customer satisfaction"
+    },
+    {
+      name: "Ekmel Yavuz",
+      role: "Quality Assurance Engineer",
+      description: "Ensuring high-quality and reliable software delivery"
     }
   ];
 
@@ -120,27 +122,10 @@ const AboutUsPage = () => {
           <h2 className="text-3xl font-semibold mb-6 text-center">Meet the Team</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="font-semibold text-lg mb-2">{member.name}</h3>
-                <p className="text-blue-600 mb-2">{member.role}</p>
+              <div key={index} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h3 className="font-semibold text-lg mb-2 text-blue-600">{member.name}</h3>
+                <p className="text-gray-800 font-medium mb-2">{member.role}</p>
                 <p className="text-gray-600">{member.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6 text-center">What Our Customers Say</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-8">
-                <div className="text-blue-500 mb-4 text-4xl">❝</div>
-                <p className="text-gray-700 italic mb-4">{testimonial.text}</p>
-                <div>
-                  <p className="font-semibold">{testimonial.author}</p>
-                  <p className="text-gray-600 text-sm">{testimonial.role}</p>
-                </div>
               </div>
             ))}
           </div>
