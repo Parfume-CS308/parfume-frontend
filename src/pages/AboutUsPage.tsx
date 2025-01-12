@@ -38,23 +38,27 @@ const AboutUsPage = () => {
   const brands = [
     {
       name: "Xeroff",
-      description: "Luxury niche perfumes with extraordinary craftsmanship"
+      description: "Renowned for creating exceptional luxury niche perfumes that push the boundaries of artistry. Each fragrance tells a unique story through rare ingredients and masterful craftsmanship, offering an unparalleled olfactory experience."
     },
     {
       name: "Parfums De Marly",
-      description: "Royal elegance inspired by the splendor of 18th century France"
+      description: "Inspired by the grandeur of 18th century French royalty, each fragrance captures the essence of luxury and sophistication. Their exceptional blends combine historical elegance with contemporary sensibilities."
     },
     {
       name: "Hugo Boss",
-      description: "Contemporary fragrances for the modern individual"
+      description: "A symbol of modern elegance, Hugo Boss fragrances embody confidence and style. Their perfumes range from crisp, professional daytime scents to sophisticated evening fragrances, perfect for the contemporary individual."
     },
     {
       name: "Armani",
-      description: "Timeless Italian luxury and sophistication"
+      description: "The epitome of Italian luxury, Armani fragrances reflect timeless elegance and refined taste. Each scent is carefully crafted to embody the perfect balance of sophistication and modern appeal, using the finest ingredients."
     },
     {
       name: "Jean Paul Gaultier",
-      description: "Bold and innovative fragrances with unique character"
+      description: "Known for pushing boundaries in the fragrance world, Jean Paul Gaultier creates distinctive scents that challenge conventions. Their iconic bottles and unique fragrance compositions represent the perfect blend of artistry and innovation."
+    },
+    {
+      name: "Nishane",
+      description: "Istanbul's first niche perfume house, Nishane brings the rich heritage of Turkish perfumery to the modern world. Their extraordinary compositions blend traditional Middle Eastern ingredients with contemporary perfumery techniques, creating unique and memorable fragrances."
     }
   ];
 
