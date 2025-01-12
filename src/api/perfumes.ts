@@ -25,4 +25,56 @@ const getPerfume = async (id: string): Promise<AxiosResponse<GetPerfumeResponse>
   }
 }
 
-export { getPerfumes, getPerfume }
+const uploadProductImage = async (image: File): Promise<AxiosResponse> => {
+  try {
+    const formData = new FormData()
+    formData.append('file', image)
+    const response: AxiosResponse = await axios.post(`/productImage`, formData)
+    return response
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const getProductImage = async (id: string): Promise<AxiosResponse> => {
+  try {
+    const response: AxiosResponse = await axios.get(`/productImage/${id}`)
+    return response
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const addNewPerfume = async (body: any): Promise<AxiosResponse> => {
+  try {
+    const response: AxiosResponse = await axios.post(`${ENDPOINT}/add`, body)
+    return response
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const updatePerfume = async (id: string, body: any): Promise<AxiosResponse> => {
+  try {
+    const response: AxiosResponse = await axios.patch(`${ENDPOINT}/update/${id}`, body)
+    return response
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const deletePerfume = async (id: string): Promise<AxiosResponse> => {
+  try {
+    const response: AxiosResponse = await axios.delete(`${ENDPOINT}/remove/${id}`)
+    return response
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export { getPerfumes, getPerfume, uploadProductImage, getProductImage, addNewPerfume, updatePerfume, deletePerfume }

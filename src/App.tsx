@@ -28,6 +28,8 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage'))
 const WishlistPage = lazy(() => import('./pages/WishlistPage'))
 const RefundRequestsAdminPage = lazy(() => import('./pages/admin/RefundRequests'))
 const DiscountsPage = lazy(() => import('./pages/admin/DiscountsPage'))
+const ProductPage = lazy(() => import('./pages/admin/ProductPage'))
+const AddProductPage = lazy(() => import('./pages/admin/AddProductPage'))
 
 const queryClient = new QueryClient()
 
@@ -78,6 +80,9 @@ function App() {
           <Route path='reviews' element={<AdminReviewsPage />} />
           <Route path='orders' element={<AdminOrdersPage />} />
           <Route path='categories' element={<CategoriesPage />} />
+          <Route path='perfume/:id' element={<ProductPage />} />
+          <Route path='add-product' element={<AddProductPage />} />
+          <Route path='add-product/:id' element={<AddProductPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
       </>
@@ -89,6 +94,8 @@ function App() {
           <Route path='orders' element={<AdminOrdersPage />} />
           <Route path='refunds' element={<RefundRequestsAdminPage />} />
           <Route path='discounts' element={<DiscountsPage />} />
+          <Route path='perfume/:id' element={<ProductPage />} />
+          <Route path='add-product' element={<AddProductPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
       </>

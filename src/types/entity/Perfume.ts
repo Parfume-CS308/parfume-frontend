@@ -24,6 +24,7 @@ export interface PerfumeVariant {
   basePrice: number
   price: number
   stock: number
+  active: boolean
 }
 
 export interface PerfumeDistributor {

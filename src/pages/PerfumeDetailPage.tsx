@@ -316,6 +316,21 @@ const PerfumeDetailPage: React.FC = () => {
       </div>
     )
   }
+
+  const renderDiscountBanner = () => {
+    const hasDiscount = perfume?.activeDiscount
+    const discountRate = hasDiscount ? perfume.activeDiscount.rate : 0
+
+    if (hasDiscount) {
+      return (
+        <div className='bg-red-500 text-white text-center p-2 rounded-md mb-4'>
+          Save {discountRate}% on this perfume!
+        </div>
+      )
+    }
+    return null
+  }
+
   const renderRightContainer = () => {
     const inStock = (selectedVariant?.stock ?? 0) > 0
     const hasDiscount = perfume?.activeDiscount
@@ -324,6 +339,7 @@ const PerfumeDetailPage: React.FC = () => {
 
     return (
       <div>
+        {renderDiscountBanner()}
         <div className='mt-6 space-y-4'>
           <div className='flex justify-between items-start'>
             <div>

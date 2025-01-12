@@ -5,6 +5,11 @@ export { logout as logoutRequest } from './auth'
 
 export { getPerfumes as getPerfumesRequest } from './perfumes'
 export { getPerfume as getPerfumeRequest } from './perfumes'
+export { uploadProductImage as uploadProductImageRequest } from './perfumes'
+export { getProductImage as getProductImageRequest } from './perfumes'
+export { addNewPerfume as addNewPerfumeRequest } from './perfumes'
+export { updatePerfume as updatePerfumeRequest } from './perfumes'
+export { deletePerfume as deletePerfumeRequest } from './perfumes'
 
 export { getCategories as getCategoriesRequest } from './categories'
 export { deleteCategory as deleteCategoryRequest } from './categories'

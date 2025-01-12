@@ -1,0 +1,78 @@
+/* src/pages/admin/ProductPage.module.css */
+.container {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  margin-top: 24px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2em;
+  color: #333;
+}
+
+.brand,
+.description,
+.rating,
+.reviewCount,
+.discount,
+.notes,
+.type,
+.season,
+.sillage,
+.longevity,
+.gender,
+.serialNumber,
+.warrantyStatus {
+  margin: 10px 0;
+  color: #555;
+}
+
+.distributorTitle,
+.categoriesTitle,
+.variantsTitle {
+  margin-top: 20px;
+  color: #333;
+}
+
+.categoriesList,
+.variantsList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.categoryItem,
+.variantItem {
+  background-color: #e9ecef;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.variantsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.variantsTable th, .variantsTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.variantsTable th {
+  background-color: #f2f2f2;
+}
+
+.perfumeImage {
+  width: 100%; /* Adjust as needed */
+  max-width: 300px; /* Set a max width */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px; /* Optional: for rounded corners */
+  margin-bottom: 20px; /* Space below the image */
+}
