@@ -8,7 +8,7 @@ import {
   DialogClose,
   DialogFooter
 } from '@/components/ui/dialog' // Import the Dialog components
-import { getOrdersRequest } from '@/api' // Adjust the import path as necessary
+import { getOrdersRequest, updateOrderStatusRequest } from '@/api' // Adjust the import path as necessary
 import { Order, OrderStatus } from '@/types/orderTypes' // Adjust the import path as necessary
 import { format } from 'date-fns'
 import { makeRefundRequest } from '@/api/order'
@@ -88,6 +88,15 @@ const OrdersPage: React.FC = () => {
       alert('There was an error processing your refund request. Please try again.')
     } finally {
       closeModal() // Close the modal after processing
+    }
+  }
+
+  const handleCancelOrder = async (order: Order) => {
+    try {
+      const response = await updateOrderStatusRequest(order.orderId, OrderStatus.CANCELLED)
+    } catch (error) {
+      console.error('Error cancelling order:', error)
+      alert('There was an error cancelling your order. Please try again.')
     }
   }
 
@@ -184,10 +193,19 @@ const OrdersPage: React.FC = () => {
               {order.status === OrderStatus.DELIVERED &&
                 differenceInSeconds(new Date(), new Date(order.createdAt)) <= 2592000 && (
                   <button
-                    className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
+                    className='bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
                     onClick={() => handleRequestRefund(order)} // Open modal with selected order
                   >
                     Request Refund
+                  </button>
+                )}
+              {order.status === OrderStatus.PROCESSING &&
+                differenceInSeconds(new Date(), new Date(order.createdAt)) <= 2592000 && (
+                  <button
+                    className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition'
+                    onClick={() => handleCancelOrder(order)} // Open modal with selected order
+                  >
+                    Cancel
                   </button>
                 )}
             </div>
