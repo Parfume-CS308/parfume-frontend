@@ -148,7 +148,7 @@ const AddProductPage = () => {
       navigate('/perfume/' + id)
     } else {
       const response = await addNewPerfumeRequest(body)
-      navigate('/perfume/' + id)
+      navigate('/perfume/' + response.data.item.id)
     }
     try {
     } catch (error: any) {}
@@ -161,7 +161,7 @@ const AddProductPage = () => {
       perfumeForm.setValue('assetId', assetId)
 
       const asset = await getProductImageRequest(assetId)
-      setAsset(asset.data)
+      setAsset(`${import.meta.env.VITE_API_URL}/productImage/${assetId}`)
     } catch (error: any) {}
   }
 
@@ -225,11 +225,7 @@ const AddProductPage = () => {
             {asset && (
               <div className='mt-4'>
                 <h2 className='text-lg font-semibold'>Uploaded Asset:</h2>
-                <img
-                  src={`${import.meta.env.VITE_API_URL}/productImage/${perfumeForm.getValues('assetId')}`}
-                  alt='Uploaded Asset'
-                  className=' rounded-lg mt-2'
-                />
+                <img src={asset} alt='Uploaded Asset' className=' rounded-lg mt-2' />
               </div>
             )}
             <FormField
@@ -595,6 +591,7 @@ const AddProductPage = () => {
                           const newVariants = [...field.value, { volume: 0, stock: 0, basePrice: 0, price: 0 }] // Add a new variant with empty fields
                           field.onChange(newVariants)
                         }}
+                        disabled={user?.role !== 'product-manager'}
                         className='bg-green-500 text-white'
                       >
                         Add Variant
