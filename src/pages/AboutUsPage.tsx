@@ -60,11 +60,10 @@ const AboutUsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Previous sections remain unchanged */}
       <div className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+          <h1 className="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#987654] to-[#876543]">
             About Us
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -113,7 +112,7 @@ const AboutUsPage = () => {
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow-lg p-6 text-center">
               <div className="flex justify-center mb-4">
-                <Star className="w-12 h-12 text-blue-500" />
+                <Star className="w-12 h-12 text-[#987654]" />
               </div>
               <h3 className="font-semibold mb-2">Quality</h3>
               <p className="text-gray-600">
@@ -122,7 +121,7 @@ const AboutUsPage = () => {
             </div>
             <div className="bg-white rounded-lg shadow-lg p-6 text-center">
               <div className="flex justify-center mb-4">
-                <Heart className="w-12 h-12 text-blue-500" />
+                <Heart className="w-12 h-12 text-[#987654]" />
               </div>
               <h3 className="font-semibold mb-2">Customer Satisfaction</h3>
               <p className="text-gray-600">
@@ -131,7 +130,7 @@ const AboutUsPage = () => {
             </div>
             <div className="bg-white rounded-lg shadow-lg p-6 text-center">
               <div className="flex justify-center mb-4">
-                <Shield className="w-12 h-12 text-blue-500" />
+                <Shield className="w-12 h-12 text-[#987654]" />
               </div>
               <h3 className="font-semibold mb-2">Integrity</h3>
               <p className="text-gray-600">
@@ -150,7 +149,7 @@ const AboutUsPage = () => {
                 key={index} 
                 className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
               >
-                <h3 className="text-xl font-semibold mb-2 text-center text-blue-600">{brand.name}</h3>
+                <h3 className="text-xl font-semibold mb-2 text-center text-[#987654]">{brand.name}</h3>
                 <p className="text-gray-600 text-center">{brand.description}</p>
               </div>
             ))}
@@ -163,7 +162,7 @@ const AboutUsPage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
               <div key={index} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h3 className="font-semibold text-lg mb-2 text-blue-600">{member.name}</h3>
+                <h3 className="font-semibold text-lg mb-2 text-[#987654]">{member.name}</h3>
                 <p className="text-gray-800 font-medium mb-2">{member.role}</p>
                 <p className="text-gray-600">{member.description}</p>
               </div>
@@ -177,19 +176,19 @@ const AboutUsPage = () => {
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <Mail className="w-8 h-8 text-blue-500 mx-auto mb-4" />
+                <Mail className="w-8 h-8 text-[#987654] mx-auto mb-4" />
                 <p className="font-semibold mb-2">Email Us</p>
-                <a href="mailto:support@perfume-store.com" className="text-blue-500 hover:text-blue-600">
+                <a href="mailto:support@perfume-store.com" className="text-[#987654] hover:text-[#876543]">
                   support@perfume-store.com
                 </a>
               </div>
               <div className="text-center">
-                <MapPin className="w-8 h-8 text-blue-500 mx-auto mb-4" />
+                <MapPin className="w-8 h-8 text-[#987654] mx-auto mb-4" />
                 <p className="font-semibold mb-2">Visit Us</p>
                 <p className="text-gray-600">Sabancı University, Perfume City</p>
               </div>
               <div className="text-center">
-                <Phone className="w-8 h-8 text-blue-500 mx-auto mb-4" />
+                <Phone className="w-8 h-8 text-[#987654] mx-auto mb-4" />
                 <p className="font-semibold mb-2">Call Us</p>
                 <p className="text-gray-600">+90 (507) 861 9609</p>
               </div>
@@ -201,7 +200,7 @@ const AboutUsPage = () => {
         <section className="text-center">
           <a
             href="/shop"
-            className="inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:-translate-y-1 transition-all duration-200 shadow-lg"
+            className="inline-block bg-gradient-to-r from-[#987654] to-[#876543] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-[#876543] hover:to-[#765432] transform hover:-translate-y-1 transition-all duration-200 shadow-lg"
           >
             Explore Our Collection
           </a>
