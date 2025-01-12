@@ -282,6 +282,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ perfume }) => {
                   disabled={!isAvailable}
                 >
                   <span>{variant.volume}ml</span>
+                  <span>{isAvailable ? `In Stock: ${variant.stock}` : 'Out of Stock'}</span>
                   <span>
                     {hasDiscount
                       ? `$${(variant.price - variant.price * (perfume.activeDiscount.rate / 100)).toFixed(2)}`

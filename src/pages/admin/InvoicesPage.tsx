@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<AdminOrder[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filterStatus, setFilterStatus] = useState<'all' | 'processing' | 'in-transit' | 'delivered' | 'cancelled'>(
+  const [filterStatus, setFilterStatus] = useState<'all' | 'processing' | 'in-transit' | 'delivered' | 'canceled'>(
     'all'
   )
 
@@ -31,7 +31,7 @@ const OrdersPage: React.FC = () => {
       processing: 'bg-blue-500 text-white',
       'in-transit': 'bg-yellow-500 text-white',
       delivered: 'bg-green-500 text-white',
-      cancelled: 'bg-red-500 text-white'
+      canceled: 'bg-red-500 text-white'
     }
 
     return (
@@ -86,7 +86,7 @@ const OrdersPage: React.FC = () => {
             <option value='processing'>Processing</option>
             <option value='in-transit'>In Transit</option>
             <option value='delivered'>Delivered</option>
-            <option value='cancelled'>Cancelled</option>
+            <option value='canceled'>Cancelled</option>
           </select>
         </div>
       </div>

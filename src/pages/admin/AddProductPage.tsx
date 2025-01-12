@@ -16,8 +16,7 @@ import {
 import { getCategories } from '@/api/categories'
 import { Category } from '@/types/entity/Category'
 import useAuth from '@/hooks/contexts/useAuth'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const perfumeSchema = z.object({
   name: z.string().nonempty('Name is required'),
@@ -71,7 +70,7 @@ const AddProductPage = () => {
       longevity: '',
       gender: '',
       description: '',
-      serialNumber: undefined,
+      serialNumber: 0,
       warrantyStatus: 1,
       distributorName: '',
       distributorContactPerson: '',
@@ -150,8 +149,6 @@ const AddProductPage = () => {
       const response = await addNewPerfumeRequest(body)
       navigate('/perfume/' + response.data.item.id)
     }
-    try {
-    } catch (error: any) {}
   }
 
   const handleUploadAssetId = async (file: File) => {
@@ -208,7 +205,7 @@ const AddProductPage = () => {
                     <Input
                       placeholder='Upload Asset ID'
                       type='file'
-                      accept='.png, .jpg'
+                      accept='.png, .jpg, .jpeg, .gif, .webp'
                       disabled={user?.role !== 'product-manager'}
                       onChange={e => {
                         const file = e.target.files?.[0]
@@ -225,7 +222,7 @@ const AddProductPage = () => {
             {asset && (
               <div className='mt-4'>
                 <h2 className='text-lg font-semibold'>Uploaded Asset:</h2>
-                <img src={asset} alt='Uploaded Asset' className=' rounded-lg mt-2' />
+                <img src={asset} alt='Uploaded Asset' height={400} width={400}  className=' rounded-lg mt-2' />
               </div>
             )}
             <FormField
@@ -557,7 +554,6 @@ const AddProductPage = () => {
                               field.onChange(newVariants)
                             }}
                             className='mr-2'
-                            disabled={user?.role !== 'sales-manager'}
                           />
                           <Input
                             placeholder='Price'
@@ -569,7 +565,6 @@ const AddProductPage = () => {
                               field.onChange(newVariants)
                             }}
                             className='mr-2'
-                            disabled={user?.role !== 'sales-manager'}
                           />
                           <Button
                             type='button'

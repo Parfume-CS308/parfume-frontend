@@ -86,10 +86,10 @@ const ProductsPage = (props: Props) => {
               <DialogHeader>
                 <DialogTitle>{selectedPerfume.name}</DialogTitle>
                 <DialogDescription>
-                  <p>Id: {selectedPerfume.id}</p>
+                  <p>ID: {selectedPerfume.id}</p>
                   <p>Brand: {selectedPerfume.brand}</p>
                   <p>Description: {selectedPerfume.description}</p>
-                  {selectedPerfume.categories && <p>Category: {selectedPerfume.categories.join(',')}</p>}
+                  {selectedPerfume.categories && <p>Category: {selectedPerfume.categories.map((category) => category.name).join(', ')}</p>}
                   <p>Distributor: {selectedPerfume.distributor.name}</p>
                   <p>Gender: {selectedPerfume.gender}</p>
                   <p>Longevity: {selectedPerfume.longevity}</p>

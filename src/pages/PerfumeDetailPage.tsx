@@ -72,7 +72,7 @@ const PerfumeDetailPage: React.FC = () => {
         setSelectedRating(response.data.rating.userRating)
       }
     } catch (error) {
-      console.error
+      console.error(error)
     }
   }
 
@@ -183,8 +183,8 @@ const PerfumeDetailPage: React.FC = () => {
 
         <div className='flex items-center gap-8 mb-8'>
           <div className='text-center'>
-            <div className='text-4xl font-bold text-gray-900 mb-2'>{perfume?.averageRating?.toFixed(1) ?? 0}</div>
-            <StarRating rating={perfume?.averageRating ?? 0} size='lg' showNumber={false} />
+            <div className='text-4xl font-bold text-gray-900 mb-2'>{ratings?.averageRating || 0}</div>
+            <StarRating rating={ratings?.averageRating || 0} size='lg' showNumber={false} />
             <div className='text-sm text-gray-500 mt-1'>{ratings?.ratingCount ?? 0} ratings</div>
           </div>
 
@@ -334,7 +334,7 @@ const PerfumeDetailPage: React.FC = () => {
   const renderRightContainer = () => {
     const inStock = (selectedVariant?.stock ?? 0) > 0
     const hasDiscount = perfume?.activeDiscount
-    const discountRate = perfume?.activeDiscount?.rate ?? 1
+    const discountRate = perfume?.activeDiscount?.rate ?? 0
     const leftPrice = ((selectedVariant?.price ?? 0) * (1 - discountRate / 100)).toFixed(2)
 
     return (
