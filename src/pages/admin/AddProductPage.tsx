@@ -514,6 +514,15 @@ const AddProductPage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variants</FormLabel>
+                  <div className='flex items-center'>
+                    <p className='w-full'>Volume</p>
+                    <p className='w-full'>Stock</p>
+                    <p className='w-full'>Base Price</p>
+                    <p className='w-full'>Price</p>
+                    <Button type='button' className='bg-red-500 text-white opacity-0 cursor-default'>
+                      Remove
+                    </Button>
+                  </div>
                   <FormControl>
                     <div className='flex flex-col'>
                       {field.value.map((variant, index) => (
@@ -540,7 +549,7 @@ const AddProductPage = () => {
                               field.onChange(newVariants)
                             }}
                             className='mr-2'
-                            disabled={user?.role !== 'sales-manager'}
+                            disabled={user?.role !== 'product-manager'}
                           />
                           <Input
                             placeholder='Base Price'

@@ -1,4 +1,4 @@
-import { getPerfumesRequest } from '@/api'
+import { deletePerfumeRequest, getPerfumesRequest } from '@/api'
 import { Button } from '@/components/ui/button'
 import { GetPerfumeDetailDTO } from '@/types/dto/perfumes/GetPerfumeDetailDTO'
 import { SortOptions } from '@/types/enums'
@@ -97,6 +97,9 @@ const ProductsPage = (props: Props) => {
               </DialogHeader>
               <DialogClose />
               <DialogFooter>
+                <Button className='bg-red-500' onClick={() => deletePerfumeRequest(selectedPerfume.id)}>
+                  Remove
+                </Button>
                 <Button onClick={() => navigate(`/perfume/${selectedPerfume.id}`)}>Go to detail</Button>
               </DialogFooter>
             </DialogContent>

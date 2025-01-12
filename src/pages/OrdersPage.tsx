@@ -161,8 +161,16 @@ const OrdersPage: React.FC = () => {
                     </p>
                   </div>
                   <div>
-                    <p className='font-semibold text-gray-800'>${(item.price * item.quantity).toFixed(2)}</p>
-                    <p className='text-sm text-gray-500'>${item.price} each</p>
+                    <p className='font-semibold text-gray-800 text-right'>
+                      ${(item.discountedPrice * item.quantity).toFixed(2)}
+                    </p>
+                    <p className='text-sm text-gray-500'>
+                      ${item.discountedPrice.toFixed(2)}{' '}
+                      {item.discountedPrice !== item.price && (
+                        <span className='text-gray-500 line-through'>${item.price.toFixed(2)}</span>
+                      )}{' '}
+                      each
+                    </p>
                   </div>
                 </div>
               ))}
@@ -171,7 +179,7 @@ const OrdersPage: React.FC = () => {
             {/* Order Footer */}
             <div className='p-6 bg-gray-50 flex justify-between items-center'>
               <p className='text-sm text-gray-600'>
-                Total: <span className='font-semibold'>${order.totalAmount}</span>
+                Total: <span className='font-semibold'>${order.totalAmount.toFixed(2)}</span>
               </p>
               {order.status === OrderStatus.DELIVERED &&
                 differenceInSeconds(new Date(), new Date(order.createdAt)) <= 2592000 && (

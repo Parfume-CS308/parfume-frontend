@@ -6,6 +6,8 @@ export interface OrderItem {
   quantity: number
   price: number
   totalAmount: number
+  discountedPrice: number
+  basePrice: number
 }
 
 export interface Order {
@@ -16,6 +18,9 @@ export interface Order {
   appliedCampaigns: any[]
   status: OrderStatus
   createdAt: string
+  discountAmount: number
+  taxId: string
+  cardLastFourDigits: string
 }
 
 export interface AdminOrder extends Order {

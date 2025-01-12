@@ -43,17 +43,18 @@ const AppAdmin = () => {
           <NavLink to='/' className={({ isActive }) => getLinkStyle(isActive)}>
             Home
           </NavLink>
+          <NavLink to='/products' className={({ isActive }) => getLinkStyle(isActive)}>
+            Products
+          </NavLink>
+          <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
+            Orders
+          </NavLink>
           {user?.role === USER_ROLE.PRODUCT_MANAGER ? (
             <>
-              <NavLink to='/products' className={({ isActive }) => getLinkStyle(isActive)}>
-                Products
-              </NavLink>
               <NavLink to='/reviews' className={({ isActive }) => getLinkStyle(isActive)}>
                 Reviews
               </NavLink>
-              <NavLink to='/orders' className={({ isActive }) => getLinkStyle(isActive)}>
-                Orders
-              </NavLink>
+
               <NavLink to='/categories' className={({ isActive }) => getLinkStyle(isActive)}>
                 Product Categories
               </NavLink>

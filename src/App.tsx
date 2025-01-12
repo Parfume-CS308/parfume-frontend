@@ -91,11 +91,13 @@ function App() {
       <>
         <Route path='/' element={<AppAdmin />}>
           <Route index element={<AdminMainPage />} />
+          <Route path='products' element={<AdminProductsPage />} />
           <Route path='orders' element={<AdminOrdersPage />} />
           <Route path='refunds' element={<RefundRequestsAdminPage />} />
           <Route path='discounts' element={<DiscountsPage />} />
           <Route path='perfume/:id' element={<ProductPage />} />
           <Route path='add-product' element={<AddProductPage />} />
+          <Route path='add-product/:id' element={<AddProductPage />} />
         </Route>
         <Route path='/auth' element={<Authorize />} />
       </>
