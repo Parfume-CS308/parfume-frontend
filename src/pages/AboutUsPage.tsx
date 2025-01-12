@@ -146,12 +146,12 @@ const AboutUsPage = () => {
               <div className="text-center">
                 <MapPin className="w-8 h-8 text-blue-500 mx-auto mb-4" />
                 <p className="font-semibold mb-2">Visit Us</p>
-                <p className="text-gray-600">123 Fragrance Lane, Perfume City</p>
+                <p className="text-gray-600">Sabancı University, Perfume City</p>
               </div>
               <div className="text-center">
                 <Phone className="w-8 h-8 text-blue-500 mx-auto mb-4" />
                 <p className="font-semibold mb-2">Call Us</p>
-                <p className="text-gray-600">+1 (555) 123-4567</p>
+                <p className="text-gray-600">+90 (507) 861 9609</p>
               </div>
             </div>
           </div>
